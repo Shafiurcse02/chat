@@ -19,25 +19,27 @@ import lombok.Data;
 @Table(name = "chat_messages")
 public class ChatMessage {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private String content;
+	@Column(nullable = false)
+	private String content;
 
-    private String sender;
-    private String recipients;
-    private String colors;
+	private String sender;
+	private String recipients;
+	private String colors;
 
-    @Column(nullable = false, updatable = false)
-    @CreationTimestamp
-    private LocalDateTime localDateTime;
+	@Column(nullable = false, updatable = false)
+	@CreationTimestamp
+	private LocalDateTime localDateTime;
 
-    @Enumerated(EnumType.STRING)
-    private MessageType msgtype;
+	@Enumerated(EnumType.STRING)
+	private MessageType msgtype;
 
-    public enum MessageType {
-        CHAT, TYPING, PRIVATE_MESSAGE, JOIN, LEAVE
-    }
+	public enum MessageType {
+		CHAT, TYPING, PRIVATE_MESSAGE, JOIN, LEAVE
+	}
+	
+	
 }
