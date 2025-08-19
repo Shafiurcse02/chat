@@ -21,8 +21,8 @@ public class MessageController {
 	@MessageMapping("chat.addUser")
 	@SendTo("/topic/public")
 	public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
-		if (userService.isExists(chatMessage.getSenderPerson())) {
-
+		if (userService.isExists(chatMessage.getSender())) {
+			
 		}
 	}
 
