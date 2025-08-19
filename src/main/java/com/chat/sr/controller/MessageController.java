@@ -10,18 +10,20 @@ import com.chat.sr.model.ChatMessage;
 
 @Controller
 public class MessageController {
-	
+
 	@MessageMapping("chat.addUser")
 	@SendTo("/topic/public")
-	public ChatMessage addUser(@Payload ChatMessage chatMessage,
-			SimpMessageHeaderAccessor headerAccessor) {
-		
+	public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
+
 	}
-	
+
 	@MessageMapping("chat.sendMessage")
 	@SendTo("/topic/public")
 	public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
-		
+	}
+	@MessageMapping("chat.sendPrivateMessage")
+	public ChatMessage sendPrivateMessage(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
+
 	}
 
 }
