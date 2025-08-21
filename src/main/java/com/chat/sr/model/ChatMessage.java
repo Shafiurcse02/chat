@@ -40,6 +40,64 @@ public class ChatMessage {
 	public enum MessageType {
 		CHAT, TYPING, PRIVATE_MESSAGE, JOIN, LEAVE
 	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public String getSender() {
+		return sender;
+	}
+
+	public void setSender(String sender) {
+		this.sender = sender;
+	}
+
+	public String getRecipients() {
+		return recipients;
+	}
+
+	public void setRecipients(String recipients) {
+		this.recipients = recipients;
+	}
+
+	public String getColors() {
+		return colors;
+	}
+
+	public void setColors(String colors) {
+		this.colors = colors;
+	}
+
+	public LocalDateTime getLocalDateTime() {
+		return localDateTime;
+	}
+
+	public void setLocalDateTime(LocalDateTime localDateTime) {
+		this.localDateTime = localDateTime;
+	}
+
+	public MessageType getMsgtype() {
+		return msgtype;
+	}
+
+	public void setMsgtype(MessageType msgtype) {
+		this.msgtype = msgtype;
+	}
+	
+	
 	
 	
 }
