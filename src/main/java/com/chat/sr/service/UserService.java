@@ -1,8 +1,10 @@
 package com.chat.sr.service;
 
-import org.springframework.stereotype.Service;
+import com.chat.sr.model.User;
 
-@Service
-public class UserService {
+public interface UserService {
+	public boolean userExists(String email);
+	public void registerUser(User user);
+	public void setUserOnlineStatus(String sender, boolean b);
 
 }

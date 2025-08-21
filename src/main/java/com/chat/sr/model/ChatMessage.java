@@ -27,7 +27,7 @@ public class ChatMessage {
 	private String content;
 
 	private String sender;
-	private String recipients;
+	private String recipient;
 	private String colors;
 
 	@Column(nullable = false, updatable = false)
@@ -35,7 +35,7 @@ public class ChatMessage {
 	private LocalDateTime localDateTime;
 
 	@Enumerated(EnumType.STRING)
-	private MessageType msgtype;
+	private MessageType type;
 
 	public enum MessageType {
 		CHAT, TYPING, PRIVATE_MESSAGE, JOIN, LEAVE
@@ -66,11 +66,11 @@ public class ChatMessage {
 	}
 
 	public String getRecipients() {
-		return recipients;
+		return recipient;
 	}
 
 	public void setRecipients(String recipients) {
-		this.recipients = recipients;
+		this.recipient = recipients;
 	}
 
 	public String getColors() {
@@ -90,11 +90,11 @@ public class ChatMessage {
 	}
 
 	public MessageType getMsgtype() {
-		return msgtype;
+		return type;
 	}
 
 	public void setMsgtype(MessageType msgtype) {
-		this.msgtype = msgtype;
+		this.type = msgtype;
 	}
 	
 	

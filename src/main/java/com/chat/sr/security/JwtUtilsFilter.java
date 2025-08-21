@@ -24,7 +24,7 @@ public class JwtUtilsFilter extends OncePerRequestFilter {
 	private JwtUtils jwtUtils;
 
 	@Autowired
-	private CustomEmpDetailsService customEmpDetailsService;
+	private CustomUserDetailsService customEmpDetailsService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

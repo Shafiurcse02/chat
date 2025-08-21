@@ -20,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.chat.sr.exception.CustomAccessDeniedHandler;
 import com.chat.sr.exception.CustomAuthenticationEntryPoint;
-import com.chat.sr.security.CustomEmpDetailsService;
+import com.chat.sr.security.CustomUserDetailsService;
 import com.chat.sr.security.JwtUtilsFilter;
 
 
@@ -28,7 +28,7 @@ import com.chat.sr.security.JwtUtilsFilter;
 @EnableWebSecurity
 public class SecurityConfig {
 	@Autowired
-	private CustomEmpDetailsService customEmpDetailsService;
+	private CustomUserDetailsService customEmpDetailsService;
 	@Autowired
 	private JwtUtilsFilter jwtUtilsFilter;
 	@Autowired
