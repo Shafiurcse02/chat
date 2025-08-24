@@ -39,7 +39,7 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults())
-				.authorizeHttpRequests(request -> request.requestMatchers("/register", "/login", "/logout").permitAll()
+				.authorizeHttpRequests(request -> request.requestMatchers("/auth/register", "/auth/login", "/logout").permitAll()
 						.requestMatchers("/admin/**").hasRole("ADMIN").requestMatchers("/user/**").hasRole("USER")
 						.anyRequest().authenticated())
 				.sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -47,7 +47,7 @@ public class SecurityConfig {
 						.authenticationEntryPoint(customAuthenticationEntryPoint))
 				.authenticationProvider(authenticationProvider())
 				.addFilterBefore(jwtUtilsFilter, UsernamePasswordAuthenticationFilter.class)
-				.logout(logout -> logout.logoutUrl("/sr/logout").logoutSuccessUrl("/login").invalidateHttpSession(true)
+				.logout(logout -> logout.logoutUrl("/auth/logout").logoutSuccessUrl("/login").invalidateHttpSession(true)
 						.deleteCookies("jwt"));
 
 		return http.build();

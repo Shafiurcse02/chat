@@ -12,7 +12,6 @@ import com.chat.sr.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
 	private final UserRepository userRepository;
@@ -24,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		User emp = userRepository.findByEmail(email)
+		User emp = userRepository.findByUserName(email)
 				.orElseThrow(() -> new UsernameNotFoundException("User Not Found " + email));
 		return new CustomUserDetails(emp);
 	}

@@ -1,71 +1,87 @@
 package com.chat.sr.controller;
+import com.chat.sr.dto.LoginRequestDTO;
+import com.chat.sr.dto.LoginRsponseDTO;
+import com.chat.sr.dto.RegisterRequestDTO;
+import com.chat.sr.repo.UserRepository;
+import com.chat.sr.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 import com.chat.sr.dto.UserDTO;
 import com.chat.sr.model.User;
-import com.chat.sr.security.JwtUtils;
-import com.chat.sr.service.UserService;
+
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
-    private UserService userService;
+    private AuthenticationService authenticationService;
 
     @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private UserRepository userRepository;
 
     // ------------------- Registration -------------------
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
-        if (userService.userExists(userDTO.getUserName())) {
-            return ResponseEntity.badRequest().body("Username already exists");
-        }
-
-        User user = userService.createUser(userDTO); // service থেকে entity save হবে
-        return ResponseEntity.ok("User registered successfully: " + user.getUserName());
+    public ResponseEntity<UserDTO> registerUser(@RequestBody RegisterRequestDTO userDTO) {
+        return ResponseEntity.ok(authenticationService.signup(userDTO));
     }
 
     // ------------------- Login -------------------
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody UserDTO userDTO) {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(userDTO.getUserName(), userDTO.getPassword())
-            );
+    public ResponseEntity<UserDTO> loginUser(@RequestBody LoginRequestDTO loginRequestDTO) {
+        LoginRsponseDTO loginRsponseDTO = authenticationService.login(loginRequestDTO);
 
-            final User user = userService.findByUsername(userDTO.getUserName());
-            final String token = jwtUtils.generateToken(userService.getUserDetails(user));
+        // ✅ Login হলে user online status true করে দেওয়া হলো
+        userRepository.updateUserOnlineStatus(loginRequestDTO.getUserName(), true);
 
-            return ResponseEntity.ok(new AuthResponse(token, user.getUserName(), user.getRole()));
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).body("Invalid username or password");
-        }
+        ResponseCookie responseCookie = ResponseCookie.from("jwt", loginRsponseDTO.getToken())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(1 * 60 * 60)
+                .sameSite("strict")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .body(loginRsponseDTO.getUserDTO());
     }
 
-    // ------------------- Auth Response DTO -------------------
-    public static class AuthResponse {
-        private String token;
-        private String username;
-        private Object role;
+    // ------------------- Logout -------------------
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(Authentication authentication) {
+              return authenticationService.logout(authentication);
+    }
 
-        public AuthResponse(String token, String username, Object role) {
-            this.token = token;
-            this.username = username;
-            this.role = role;
+    // ------------------- Current User -------------------
+    @GetMapping("/getCurrentuser")
+    public ResponseEntity<?> getCurrentuser(Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("User Not Authorized");
         }
 
-        public String getToken() { return token; }
-        public String getUsername() { return username; }
-        public Object getRole() { return role; }
+        String userName = authentication.getName();
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return ResponseEntity.ok(convertToUserDTO(user));
+    }
+
+    private UserDTO convertToUserDTO(User user) {
+        return UserDTO.builder()
+                .userName(user.getUserName())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .build();
     }
 }

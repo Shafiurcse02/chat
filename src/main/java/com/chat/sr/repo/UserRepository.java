@@ -14,13 +14,16 @@ import jakarta.transaction.Transactional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-	Optional<User> findByEmail(String email);
+
+    Optional<User> findByEmail(String email);
 
 	Boolean existsByEmail(String email);
+    Optional<User> findByUserName(String userName);
 
-	@Transactional
-	@Modifying
-	@Query("Update user u set u.isOnline=:isOnline where u.userName=:userName")
-	public void updateUserOnlineStatus(@Param("userName") String userName, @Param("isOnline") boolean isOnline);
+   @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE User u SET u.isActive = :status WHERE u.userName = :username")
+    void updateUserOnlineStatus(@Param("username") String userName,
+                                @Param("status") boolean status);
 
 }

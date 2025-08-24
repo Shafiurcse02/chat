@@ -3,6 +3,8 @@ package com.chat.sr.security;
 import java.util.Collection;
 import java.util.List;
 
+import lombok.Data;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +13,7 @@ import com.chat.sr.model.User;
 
 import lombok.RequiredArgsConstructor;
 
+@Data
 public class CustomUserDetails implements UserDetails {
 
 	private User user;
@@ -31,7 +34,7 @@ public class CustomUserDetails implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return user.getEmail();
+		return user.getUserName();
 	}
 
 	@Override
@@ -54,7 +57,4 @@ public class CustomUserDetails implements UserDetails {
 		return true;
 	}
 
-	public User getUser() {
-		return user;
-	}
 }
