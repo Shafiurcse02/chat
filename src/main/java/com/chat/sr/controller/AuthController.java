@@ -79,6 +79,7 @@ public class AuthController {
 
     private UserDTO convertToUserDTO(User user) {
         return UserDTO.builder()
+                .id(user.getId())
                 .userName(user.getUserName())
                 .email(user.getEmail())
                 .role(user.getRole())

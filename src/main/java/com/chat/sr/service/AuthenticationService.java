@@ -79,6 +79,7 @@ throw  new RuntimeException("UserName Already Exists");
 
     private UserDTO convertToUserDTO(User user) {
         return UserDTO.builder()
+                .id(user.getId())
                 .userName(user.getUserName())
                 .email(user.getEmail())
                 .role(user.getRole())
