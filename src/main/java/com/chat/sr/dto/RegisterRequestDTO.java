@@ -16,6 +16,8 @@ public class RegisterRequestDTO {
     private String userName;
     private String password;
     private String email;
+    private String phone;
+    private String gender;
     private String role;
     private boolean isActive;
 }

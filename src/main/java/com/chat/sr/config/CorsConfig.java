@@ -12,11 +12,13 @@ public class CorsConfig {
 	public WebMvcConfigurer webMvcConfigurer() {
 		return new WebMvcConfigurer() {
 			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedMethods("GET", "POST", "PUT", "DELETE")
-						.allowedOrigins("https://web-11.netlify.app") // URL এর শেষে '/' নেই
-						.allowedHeaders("Authorization", "Content-Type").allowCredentials(true);
-			}
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:5173")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
+            }
 		};
 	}
 

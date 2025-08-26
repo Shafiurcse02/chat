@@ -37,9 +37,13 @@ public class AuthenticationService {
         if (userRepository.findByUserName(userDTO.getUserName()).isPresent()){
 throw  new RuntimeException("UserName Already Exists");
         }
+        userDTO.setActive(false);
+        userDTO.setRole("USER");
         User user= User.builder()
                 .userName(userDTO.getUserName())
                 .email(userDTO.getEmail())
+                .phone(userDTO.getPhone())
+                .gender(userDTO.getGender())
                 .password(passwordEncoder.encode(userDTO.getPassword()))
                 .role(Role.valueOf(userDTO.getRole()))
                 .build();
@@ -81,6 +85,8 @@ throw  new RuntimeException("UserName Already Exists");
         return UserDTO.builder()
                 .id(user.getId())
                 .userName(user.getUserName())
+                .phone(user.getPhone())
+                .gender(user.getGender())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .build();
