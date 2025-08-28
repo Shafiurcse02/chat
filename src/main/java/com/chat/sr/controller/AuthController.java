@@ -2,6 +2,7 @@ package com.chat.sr.controller;
 import com.chat.sr.dto.LoginRequestDTO;
 import com.chat.sr.dto.LoginRsponseDTO;
 import com.chat.sr.dto.RegisterRequestDTO;
+import com.chat.sr.mapper.UserMapper;
 import com.chat.sr.repo.UserRepository;
 import com.chat.sr.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class AuthController {
 
         ResponseCookie responseCookie = ResponseCookie.from("jwt", loginRsponseDTO.getToken())
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .path("/")
                 .maxAge(1 * 60 * 60)
                 .sameSite("strict")
@@ -56,33 +57,13 @@ public class AuthController {
                 .body(loginRsponseDTO.getUserDTO());
     }
 
+
+
+
     // ------------------- Logout -------------------
     @PostMapping("/logout")
     public ResponseEntity<String> logout(Authentication authentication) {
               return authenticationService.logout(authentication);
     }
 
-    // ------------------- Current User -------------------
-    @GetMapping("/getCurrentuser")
-    public ResponseEntity<?> getCurrentuser(Authentication authentication) {
-        if (authentication == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("User Not Authorized");
-        }
-
-        String userName = authentication.getName();
-        User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        return ResponseEntity.ok(convertToUserDTO(user));
-    }
-
-    private UserDTO convertToUserDTO(User user) {
-        return UserDTO.builder()
-                .id(user.getId())
-                .userName(user.getUserName())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .build();
-    }
 }
