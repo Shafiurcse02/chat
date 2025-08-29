@@ -5,6 +5,7 @@ import com.chat.sr.dto.RegisterRequestDTO;
 import com.chat.sr.mapper.UserMapper;
 import com.chat.sr.repo.UserRepository;
 import com.chat.sr.service.AuthenticationService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -63,7 +64,13 @@ public class AuthController {
     // ------------------- Logout -------------------
     @PostMapping("/logout")
     public ResponseEntity<String> logout(Authentication authentication) {
-              return authenticationService.logout(authentication);
+        System.out.println("******** ok *******");
+        return authenticationService.logout(authentication);
     }
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("******** ok *******");
+    }
+
 
 }

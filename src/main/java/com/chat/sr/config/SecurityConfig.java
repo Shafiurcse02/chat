@@ -1,9 +1,12 @@
 package com.chat.sr.config;
 
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -49,13 +52,34 @@ public class SecurityConfig {
 						.authenticationEntryPoint(customAuthenticationEntryPoint))
 				.authenticationProvider(authenticationProvider())
 				.addFilterBefore(jwtUtilsFilter, UsernamePasswordAuthenticationFilter.class)
-				.logout(logout ->
-                        logout.logoutUrl("/auth/logout")
-                                .logoutSuccessUrl("/auth/login")
-                                .invalidateHttpSession(true)
-						.deleteCookies("jwt"));
+            /*    .logout(logout -> logout
+                        // Logout URL (frontend / Postman থেকে POST পাঠাতে হবে)
+                        .logoutUrl("/auth/logout")
+                        // Logout successful হলে redirect /login
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            // JWT cookie clear করা
+                            ResponseCookie cookie = ResponseCookie.from("jwt", "")
+                                    .httpOnly(true)
+                                    .secure(false) // production এ true
+                                    .path("/")
+                                    .maxAge(0)
+                                    .sameSite("Strict")
+                                    .build();
 
-		return http.build();
+                            response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            response.getWriter().write("Logout successful");
+                        })
+                        // Session invalidate
+                        .invalidateHttpSession(true)
+                        .deleteCookies("jwt")
+                );*/
+                .logout(logout -> logout.disable());
+
+
+
+
+        return http.build();
 	}
 
 	@Bean

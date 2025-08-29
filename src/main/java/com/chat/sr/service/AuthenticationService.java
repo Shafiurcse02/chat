@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,22 +65,26 @@ throw  new RuntimeException("UserName Already Exists");
     }
 
     public ResponseEntity<String> logout(Authentication authentication) {
-
         if (authentication != null) {
             String userName = authentication.getName();
             userRepository.updateUserOnlineStatus(userName, false);
         }
         ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
-                .secure(true) // প্রোডাকশনে true
+                .secure(false)
                 .path("/")
+                .maxAge(0)
                 .sameSite("Strict")
-                .maxAge(0) // ✅ এইটাই কুকি এক্সপায়ার করবে সঙ্গে সঙ্গে
                 .build();
 
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+        SecurityContextHolder.clearContext();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .body("🚪 Logged out successfully");
     }
+
+
 
     private UserDTO convertToUserDTO(User user) {
         return UserDTO.builder()
