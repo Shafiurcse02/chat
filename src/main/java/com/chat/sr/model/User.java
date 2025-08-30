@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,6 +28,9 @@ public class User {
     private String phone;
     @Column(nullable = false)
     private String gender;
+    private String district;
+    private String thana;
+    private String po;
 
     // এখানে enum ব্যবহার করা হল
     @Enumerated(EnumType.STRING)
@@ -39,6 +43,8 @@ public class User {
     private boolean isActive = false;
 
     // Owner হলে farm সম্পর্ক
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Farm> farms;
+
+
+    //@OneToMany(mappedBy = "owner")
+    //private List<Farm> farms;
 }

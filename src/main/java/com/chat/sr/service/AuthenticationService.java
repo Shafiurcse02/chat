@@ -38,16 +38,20 @@ public class AuthenticationService {
         if (userRepository.findByUserName(userDTO.getUserName()).isPresent()){
 throw  new RuntimeException("UserName Already Exists");
         }
+        System.out.println(userDTO+" *************************");
         userDTO.setActive(false);
-        userDTO.setRole("USER");
         User user= User.builder()
                 .userName(userDTO.getUserName())
                 .email(userDTO.getEmail())
                 .phone(userDTO.getPhone())
+                .district(userDTO.getDistrict())
+                .thana(userDTO.getThana())
+                .po(userDTO.getPo())
                 .gender(userDTO.getGender())
                 .password(passwordEncoder.encode(userDTO.getPassword()))
                 .role(Role.valueOf(userDTO.getRole()))
                 .build();
+        System.out.println(user+" ++++++++++++++++++");
         User user1=userRepository.save(user);
         return convertToUserDTO(user1);
     }
@@ -93,7 +97,11 @@ throw  new RuntimeException("UserName Already Exists");
                 .phone(user.getPhone())
                 .gender(user.getGender())
                 .email(user.getEmail())
+                .district(user.getDistrict())
+                .thana(user.getThana())
+                .po(user.getPo())
                 .role(user.getRole())
+                .isActive(user.isActive())
                 .build();
     }
 }

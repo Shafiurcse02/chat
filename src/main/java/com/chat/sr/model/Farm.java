@@ -23,8 +23,11 @@ public class Farm {
     private String location;
 
     // Owner সম্পর্ক
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)  // foreign key in farms table
     private User owner;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "farmType_id", nullable = false)  // foreign key in farms table
+    private FarmType  farmType;
 }
 

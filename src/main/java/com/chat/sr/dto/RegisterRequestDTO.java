@@ -18,6 +18,9 @@ public class RegisterRequestDTO {
     private String email;
     private String phone;
     private String gender;
+    private String district;
+    private String thana;
+    private String po;
     private String role;
     private boolean isActive;
 }

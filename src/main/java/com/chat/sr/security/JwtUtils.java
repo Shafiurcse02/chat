@@ -28,7 +28,6 @@ public class JwtUtils {
 	// টোকেন জেনারেট
 	public String generateToken(UserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
-		// চাইলে role/extra claims ও দিতে পারেন
 		claims.put("role", userDetails.getAuthorities());
 		return createToken(claims, userDetails.getUsername());
 	}

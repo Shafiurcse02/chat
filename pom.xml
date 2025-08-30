@@ -87,6 +87,8 @@
             <version>1.18.34</version> <!-- ✅ stable version -->
             <scope>provided</scope>
         </dependency>
+
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -106,8 +108,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version> <!-- ✅ latest stable -->
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>21</source>
+                    <target>21</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
