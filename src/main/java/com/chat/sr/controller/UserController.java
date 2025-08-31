@@ -32,5 +32,25 @@ public class UserController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return ResponseEntity.ok(UserMapper.toDTO(user));
     }
+    @PutMapping("/user/my-profile")
+    public ResponseEntity<UserDTO> updateProfile(
+            Authentication authentication,
+            @RequestBody UserDTO userDTO
+    ) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User user = userRepository.findByUserName(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+
+        UserMapper.updateUserFromDTO(userDTO, user);
+        userRepository.save(user);
+        System.out.println("*********************Update*******************************");
+
+        return ResponseEntity.ok(UserMapper.toDTO(user));
+    }
+
 
 }
