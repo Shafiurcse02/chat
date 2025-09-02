@@ -40,6 +40,7 @@ throw  new RuntimeException("UserName Already Exists");
         }
         System.out.println(userDTO+" *************************");
         userDTO.setActive(false);
+        userDTO.setRole("USER");
         User user= User.builder()
                 .userName(userDTO.getUserName())
                 .email(userDTO.getEmail())

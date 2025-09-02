@@ -1,11 +1,9 @@
 package com.chat.sr.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Generated;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +40,10 @@ public class User {
     @Column(name = "is_online", nullable = false)
     private boolean isActive = false;
 
-    // Owner হলে farm সম্পর্ক
-
+    @JsonIgnore              // JSON serialization থেকে বাদ দিবে
+    @ToString.Exclude
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Farm> farms;
 
     //@OneToMany(mappedBy = "owner")
     //private List<Farm> farms;
