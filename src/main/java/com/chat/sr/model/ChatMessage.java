@@ -27,7 +27,7 @@ public class ChatMessage {
 	private String content;
 
 	private String sender;
-	private String recipient;
+	private String receiver;
 	private String colors;
 
 	@Column(nullable = false, updatable = false)
@@ -66,11 +66,11 @@ public class ChatMessage {
 	}
 
 	public String getRecipients() {
-		return recipient;
+		return receiver;
 	}
 
 	public void setRecipients(String recipients) {
-		this.recipient = recipients;
+		this.receiver = recipients;
 	}
 
 	public String getColors() {

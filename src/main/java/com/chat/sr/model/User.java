@@ -45,6 +45,4 @@ public class User {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Farm> farms;
 
-    //@OneToMany(mappedBy = "owner")
-    //private List<Farm> farms;
 }

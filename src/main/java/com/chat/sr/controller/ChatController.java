@@ -2,6 +2,7 @@ package com.chat.sr.controller;
 
 import java.time.LocalDateTime;
 
+import com.chat.sr.dto.TypingMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -72,6 +73,7 @@ public class ChatController {
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/public")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
+        System.out.println("Send message Controller Function");
         try {
             if (userService.userExists(chatMessage.getSender())) {
 
@@ -135,5 +137,11 @@ public class ChatController {
                     chatMessage.getRecipients());
         }
 	}
+    // Typing notification
+    @MessageMapping("/typing")
+    @SendTo("/topic/typing")
+    public TypingMessage sendTyping(TypingMessage typing) {
+        return typing;
+    }
 
 }
