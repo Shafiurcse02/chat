@@ -16,54 +16,86 @@ import com.chat.sr.model.User;
 import com.chat.sr.repo.ChatMessageRepository;
 import com.chat.sr.service.UserService;
 import com.chat.sr.service.UserServiceImp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 public class ChatController {
 
 	@Autowired
-	private SimpMessageSendingOperations messagingTemplate1;
-	@Autowired
-	private SimpMessagingTemplate messagingTemplate;
+	private SimpMessageSendingOperations messagingTemplate;
+
 	@Autowired
 	private UserService userService;
 
 	@Autowired
 	private ChatMessageRepository chatMessageRepository;
+    private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
 
-	// নতুন ইউজার যোগ হলে "/app/chat.addUser" এ কল হবে
-	@MessageMapping("/chat.addUser")
-	@SendTo("/topic/public")
-	public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
-		if (userService.userExists(chatMessage.getSender())) {
-			headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-			userService.setUserOnlineStatus(chatMessage.getSender(), true);
-			System.out.println("User Added Successfully " + chatMessage.getSender() + " session id is"
-					+ headerAccessor.getSessionId());
-			chatMessage.setLocalDateTime(LocalDateTime.now());
-			if (chatMessage.getContent() == null) {
-				chatMessage.setContent("");
-			}
-		}
 
-		return chatMessageRepository.save(chatMessage);
-	}
+    // নতুন ইউজার যোগ হলে "/app/chat.addUser" এ কল হবে
+    @MessageMapping("/chat.addUser")
+    @SendTo("/topic/public")
+    public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
+        try {
+            if (userService.userExists(chatMessage.getSender())) {
 
-	// নতুন মেসেজ আসলে "/app/chat.sendMessage" এ কল হবে
-	@MessageMapping("/chat.sendMessage")
-	@SendTo("/topic/public")
-	public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
+                headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
+                userService.setUserOnlineStatus(chatMessage.getSender(), true);
 
-		if (userService.userExists(chatMessage.getSender())) {
-			if (chatMessage.getLocalDateTime() == null) {
-				chatMessage.setLocalDateTime(LocalDateTime.now());
-			}
-			if (chatMessage.getContent() == null) {
-				chatMessage.setContent("");
-			}
-			return chatMessageRepository.save(chatMessage);
-		}
-		return null;
-	}
+                logger.info("👤 New User Added: {} | Session ID: {}",
+                        chatMessage.getSender(), headerAccessor.getSessionId());
+
+                chatMessage.setLocalDateTime(LocalDateTime.now());
+
+                if (chatMessage.getContent() == null) {
+                    chatMessage.setContent("");
+                }
+               // messagingTemplate.convertAndSend("/topic/public", chatMessage);
+
+                ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
+                logger.debug("💾 User join message saved with ID: {}", savedMessage.getId());
+
+                return savedMessage;
+            } else {
+                logger.warn("⚠️ Tried to add user [{}], but user does not exist!", chatMessage.getSender());
+            }
+
+        } catch (Exception e) {
+            logger.error("❌ Error while adding user [{}]: {}", chatMessage.getSender(), e.getMessage(), e);
+        }
+
+        return null;
+    }
+
+    // নতুন মেসেজ আসলে "/app/chat.sendMessage" এ কল হবে
+    @MessageMapping("/chat.sendMessage")
+    @SendTo("/topic/public")
+    public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
+        try {
+            if (userService.userExists(chatMessage.getSender())) {
+
+                if (chatMessage.getLocalDateTime() == null) {
+                    chatMessage.setLocalDateTime(LocalDateTime.now());
+                }
+                if (chatMessage.getContent() == null) {
+                    chatMessage.setContent("");
+                }
+
+                ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
+                logger.info("✅ Public message saved. Sender: {}, ID: {}", savedMessage.getSender(), savedMessage.getId());
+                return savedMessage;
+
+            } else {
+                logger.warn("⚠️ Sender [{}] does not exist. Message rejected.", chatMessage.getSender());
+            }
+
+        } catch (Exception e) {
+            logger.error("❌ Error while saving/sending public message: {}", e.getMessage(), e);
+        }
+        return null;
+    }
+
 
 	@MessageMapping("/chat.sendPrivateMessage")
 	public void sendPrivateMessage(@Payload ChatMessage chatMessage) {
@@ -78,24 +110,30 @@ public class ChatController {
 			chatMessage.setMsgtype(ChatMessage.MessageType.PRIVATE_MESSAGE);
 			ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 			System.out.println("Message saved Successfully " + savedMessage.getId());
-			try {
-				String recipintDestination = "/user/" + chatMessage.getRecipients() + "/queue/private";
-				System.out.println("Sending message to Recipint Destination " + recipintDestination);
-				messagingTemplate.convertAndSend(recipintDestination, savedMessage);
+            try {
+                // ✅ recipient এর কাছে পাঠানো
+                messagingTemplate.convertAndSendToUser(
+                        chatMessage.getRecipients(),
+                        "/queue/private",
+                        savedMessage
+                );
 
-				String senderDestination = "/user/" + chatMessage.getSender() + "/queue/private";
-				System.out.println("Sending message to Sender Destination " + senderDestination);
-				messagingTemplate.convertAndSend(senderDestination, savedMessage);
+                // ✅ sender এর কাছেও পাঠানো (to keep sync)
+                messagingTemplate.convertAndSendToUser(
+                        chatMessage.getSender(),
+                        "/queue/private",
+                        savedMessage
+                );
 
-			} catch (Exception e) {
-				System.out.println("Error to send Message: " + e.getMessage());
-				e.printStackTrace();
-			}
-		} else {
-			System.out.println(
-					"Sender " + chatMessage.getSender() + " or " + chatMessage.getRecipients() + " Not Exists");
-			;
-		}
+                logger.info("📩 Private message sent to {} and {}", chatMessage.getRecipients(), chatMessage.getSender());
+            } catch (Exception e) {
+                logger.error("❌ Error while sending message: {}", e.getMessage(), e);
+            }
+        } else {
+            logger.warn("⚠️ Sender [{}] or Recipient [{}] not exists",
+                    chatMessage.getSender(),
+                    chatMessage.getRecipients());
+        }
 	}
 
 }

@@ -4,13 +4,11 @@ import com.chat.sr.dto.LoginRequestDTO;
 import com.chat.sr.dto.LoginRsponseDTO;
 import com.chat.sr.dto.RegisterRequestDTO;
 import com.chat.sr.dto.UserDTO;
-import com.chat.sr.mapper.UserMapper;
 import com.chat.sr.model.Role;
 import com.chat.sr.model.User;
 import com.chat.sr.repo.UserRepository;
 import com.chat.sr.security.CustomUserDetails;
 import com.chat.sr.security.JwtUtils;
-import org.apache.catalina.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -41,14 +39,22 @@ public class AuthenticationService {
 throw  new RuntimeException("UserName Already Exists");
         }
         System.out.println(userDTO+" *************************");
-               User user = UserMapper.toUser(userDTO);
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-
-        user.setRole(Role.USER);
-        user.setActive(false);
+        userDTO.setActive(false);
+        userDTO.setRole("USER");
+        User user= User.builder()
+                .userName(userDTO.getUserName())
+                .email(userDTO.getEmail())
+                .phone(userDTO.getPhone())
+                .district(userDTO.getDistrict())
+                .thana(userDTO.getThana())
+                .po(userDTO.getPo())
+                .gender(userDTO.getGender())
+                .password(passwordEncoder.encode(userDTO.getPassword()))
+                .role(Role.valueOf(userDTO.getRole()))
+                .build();
         System.out.println(user+" ++++++++++++++++++");
         User user1=userRepository.save(user);
-        return UserMapper.toDTO(user1);
+        return convertToUserDTO(user1);
     }
 
     public LoginRsponseDTO login(LoginRequestDTO loginRequestDTO) {
@@ -59,7 +65,7 @@ throw  new RuntimeException("UserName Already Exists");
        String token= jwtUtils.generateToken(new CustomUserDetails(user));
        return  LoginRsponseDTO.builder()
                .token(token)
-               .userDTO(UserMapper.toDTO(user))
+               .userDTO(convertToUserDTO(user))
                .build();
     }
 
@@ -83,4 +89,20 @@ throw  new RuntimeException("UserName Already Exists");
                 .body("🚪 Logged out successfully");
     }
 
+
+
+    private UserDTO convertToUserDTO(User user) {
+        return UserDTO.builder()
+                .id(user.getId())
+                .userName(user.getUserName())
+                .phone(user.getPhone())
+                .gender(user.getGender())
+                .email(user.getEmail())
+                .district(user.getDistrict())
+                .thana(user.getThana())
+                .po(user.getPo())
+                .role(user.getRole())
+                .isActive(user.isActive())
+                .build();
+    }
 }

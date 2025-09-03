@@ -14,6 +14,9 @@ import com.chat.sr.model.ChatMessage;
 import com.chat.sr.model.ChatMessage.MessageType;
 import com.chat.sr.service.UserService;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Component
 public class WebSocketEventListener {
 	
@@ -23,7 +26,15 @@ public class WebSocketEventListener {
 	private UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketEventListener.class);
 
-	
+    // Keep track of connected users: sessionId -> username
+    private final Map<String, String> activeUsers = new ConcurrentHashMap<>();
+
+    // Call this when a user connects (you can do it in your login/subscribe logic)
+    public void registerUser(String sessionId, String username) {
+        if (sessionId != null && username != null) {
+            activeUsers.put(sessionId, username);
+        }
+    }
 	// যখন কেউ connect করে
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
@@ -32,20 +43,29 @@ public class WebSocketEventListener {
     
     // যখন কেউ disconnect করে
     @EventListener
-    public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+    public void handleSessionDisconnect(SessionDisconnectEvent event) {
+        if (event == null) return;
 
-        String username = headerAccessor.getSessionAttributes().get("username").toString();
-        
-        if (username != null) {
-            logger.info("❌ User Disconnected: " + username);
-            System.out.println("❌ User Disconnected: " + username);
-            userService.setUserOnlineStatus(username, false); 
-            ChatMessage chatMessage=new ChatMessage();
-            chatMessage.setMsgtype(ChatMessage.MessageType.LEAVE);
-            chatMessage.setSender(username);
-            messagingTemplate.convertAndSend("/topic/public", chatMessage);
+        try {
+            StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+            String sessionId = accessor.getSessionId();
+
+            if (sessionId != null && activeUsers.containsKey(sessionId)) {
+                String username = activeUsers.remove(sessionId);
+                // Optional: broadcast user left message to other clients
+                System.out.println("User disconnected: " + username + " (session: " + sessionId + ")");
+            }
+
+        } catch (Exception e) {
+            // Catch all exceptions to prevent the ERROR log
+            System.err.println("Error handling session disconnect: " + e.getMessage());
         }
     }
+
+    // Optional helper to get all active users
+    public Map<String, String> getActiveUsers() {
+        return activeUsers;
+    }
+
 
 }

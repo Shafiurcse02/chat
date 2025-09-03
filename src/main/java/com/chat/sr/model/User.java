@@ -40,9 +40,11 @@ public class User {
     @Column(name = "is_online", nullable = false)
     private boolean isActive = false;
 
-    @JsonIgnore // JSON serialization থেকে বাদ দিবে
+    @JsonIgnore              // JSON serialization থেকে বাদ দিবে
     @ToString.Exclude
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Farm> farms;
 
+    //@OneToMany(mappedBy = "owner")
+    //private List<Farm> farms;
 }
