@@ -22,4 +22,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
             @Param("user2") String user2,
             Pageable pageable
     );
+    @Query("SELECT m FROM ChatMessage m WHERE m.type = 'CHAT' AND m.receiver IS NULL ORDER BY m.localDateTime ASC")
+       Page<ChatMessage> findPublicMessages(Pageable pageable);
 }

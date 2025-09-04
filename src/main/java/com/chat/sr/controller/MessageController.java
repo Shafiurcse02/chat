@@ -2,6 +2,8 @@ package com.chat.sr.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,13 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.chat.sr.model.ChatMessage;
 import com.chat.sr.repo.ChatMessageRepository;
-
 @RestController
-@RequestMapping("/api/messages")
+@RequestMapping("/messages")
 public class MessageController {
 
     @Autowired
     private ChatMessageRepository chatMessageRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
 
     @GetMapping("/private")
     public ResponseEntity<List<ChatMessage>> getPrivateMessages(
@@ -31,12 +34,30 @@ public class MessageController {
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "true") boolean asc
     ) {
-
         Pageable pageable = PageRequest.of(page, size,
-                asc ? Sort.by("timestamp").ascending() : Sort.by("timestamp").descending()
+                asc ? Sort.by("localDateTime").ascending() : Sort.by("localDateTime").descending()
         );
 
         Page<ChatMessage> messagesPage = chatMessageRepository.findPrivateMessagesBetween(user1, user2, pageable);
+
+        logger.info("Fetched {} private messages between [{}] and [{}]", messagesPage.getNumberOfElements(), user1, user2);
+
+        return ResponseEntity.ok(messagesPage.getContent());
+    }
+
+    @GetMapping("/public")
+    public ResponseEntity<List<ChatMessage>> getPublicMessages(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "true") boolean asc
+    ) {
+        Pageable pageable = PageRequest.of(page, size,
+                asc ? Sort.by("localDateTime").ascending() : Sort.by("localDateTime").descending()
+        );
+
+        Page<ChatMessage> messagesPage = chatMessageRepository.findPublicMessages(pageable);
+
+        logger.info("Fetched {} public messages", messagesPage.getNumberOfElements());
 
         return ResponseEntity.ok(messagesPage.getContent());
     }
