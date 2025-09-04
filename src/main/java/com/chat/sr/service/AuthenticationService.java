@@ -72,7 +72,9 @@ throw  new RuntimeException("UserName Already Exists");
     public ResponseEntity<String> logout(Authentication authentication) {
         if (authentication != null) {
             String userName = authentication.getName();
-            userRepository.updateUserOnlineStatus(userName, false);
+            System.out.println("🔴 User disconnected: " + userName);
+
+            userRepository.updateUserIsActiveStatus(userName, false);
         }
         ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)

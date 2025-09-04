@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.chat.sr.dto.UserDTO;
 import com.chat.sr.model.User;
-
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -42,9 +40,10 @@ public class AuthController {
     public ResponseEntity<UserDTO> loginUser(@RequestBody LoginRequestDTO loginRequestDTO) {
         LoginRsponseDTO loginRsponseDTO = authenticationService.login(loginRequestDTO);
 
-        // ✅ Login হলে user online status true করে দেওয়া হলো
-        userRepository.updateUserOnlineStatus(loginRequestDTO.getUserName(), true);
+        // ✅ DB তে update
+        userRepository.updateUserIsActiveStatus(loginRequestDTO.getUserName(), true);
 
+        // ✅ OnlineUserService এও add
         ResponseCookie responseCookie = ResponseCookie.from("jwt", loginRsponseDTO.getToken())
                 .httpOnly(true)
                 .secure(false)
@@ -58,19 +57,21 @@ public class AuthController {
                 .body(loginRsponseDTO.getUserDTO());
     }
 
-
-
-
     // ------------------- Logout -------------------
     @PostMapping("/logout")
     public ResponseEntity<String> logout(Authentication authentication) {
-        System.out.println("******** ok *******");
+        if (authentication != null) {
+            String username = authentication.getName();
+
+            // ✅ DB তে offline
+            userRepository.updateUserIsActiveStatus(username, false);
+
+        }
         return authenticationService.logout(authentication);
     }
+
     @GetMapping("/test")
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("******** ok *******");
     }
-
-
 }

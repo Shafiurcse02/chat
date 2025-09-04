@@ -2,9 +2,18 @@ package com.chat.sr.service;
 
 import com.chat.sr.model.User;
 
+import java.util.List;
+
 public interface UserService {
-	public boolean userExists(String email);
 	public void registerUser(User user);
-	public void setUserOnlineStatus(String sender, boolean b);
+
+     List<String> getOnlineUsers();
+
+    boolean userExists(String username);
+
+    void setUserOIsActiveStatus(String username, boolean status);
+
+
+    User getUserByUsername(String username);
 
 }

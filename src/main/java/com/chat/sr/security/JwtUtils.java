@@ -3,9 +3,11 @@ package com.chat.sr.security;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +57,28 @@ public class JwtUtils {
 		return claimsResolver.apply(claims);
 	}
 
-	// টোকেন valid কিনা
+    private String extractUsernameFromJwt(ServerHttpRequest request) {
+        // 1️⃣ Cookie header নাও
+        List<String> cookieHeaders = request.getHeaders().get("Cookie");
+        if (cookieHeaders == null || cookieHeaders.isEmpty()) return null;
+
+        // 2️⃣ JWT cookie parse
+        for (String header : cookieHeaders) {
+            String[] cookies = header.split(";");
+            for (String cookie : cookies) {
+                String[] pair = cookie.trim().split("=");
+                if (pair.length == 2 && pair[0].equals("jwt")) {
+                    String token = pair[1];
+                    // 3️⃣ JWT থেকে username extract করা
+                    return extractUsername(token);
+                }
+            }
+        }
+        return null; // JWT cookie পাওয়া যায়নি
+    }
+
+
+    // টোকেন valid কিনা
 	public boolean isTokenValid(String token, UserDetails userDetails) {
 		final String username = extractUsername(token);
 		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));

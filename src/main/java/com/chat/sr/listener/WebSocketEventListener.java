@@ -1,71 +1,58 @@
 package com.chat.sr.listener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.chat.sr.service.OnlineUserService;
+import com.chat.sr.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.messaging.SessionConnectedEvent;
+import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import com.chat.sr.model.ChatMessage;
-import com.chat.sr.model.ChatMessage.MessageType;
-import com.chat.sr.service.UserService;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 
 @Component
 public class WebSocketEventListener {
-	
-	  @Autowired
-	    private SimpMessageSendingOperations messagingTemplate;  // একটাই যথেষ্ট
-	@Autowired
-	private UserService userService;
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketEventListener.class);
 
-    // Keep track of connected users: sessionId -> username
-    private final Map<String, String> activeUsers = new ConcurrentHashMap<>();
+    @Autowired
+    private OnlineUserService onlineUserService;
+    @Autowired
 
-    // Call this when a user connects (you can do it in your login/subscribe logic)
-    public void registerUser(String sessionId, String username) {
-        if (sessionId != null && username != null) {
-            activeUsers.put(sessionId, username);
-        }
-    }
-	// যখন কেউ connect করে
+    private SimpMessageSendingOperations messagingTemplate;
+
+    @Autowired
+    private UserService userService;
+
     @EventListener
-    public void handleWebSocketConnectListener(SessionConnectedEvent event) {
-        logger.info("🔗 New WebSocket connection established");
-    }
-    
-    // যখন কেউ disconnect করে
-    @EventListener
-    public void handleSessionDisconnect(SessionDisconnectEvent event) {
-        if (event == null) return;
+    public void handleWebSocketConnectListener(SessionConnectEvent event) {
+        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+        String username = headerAccessor.getUser() != null ? headerAccessor.getUser().getName() : null;
 
-        try {
-            StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-            String sessionId = accessor.getSessionId();
+        System.out.println("🔌 User connected: " + username);
 
-            if (sessionId != null && activeUsers.containsKey(sessionId)) {
-                String username = activeUsers.remove(sessionId);
-                // Optional: broadcast user left message to other clients
-                System.out.println("User disconnected: " + username + " (session: " + sessionId + ")");
-            }
-
-        } catch (Exception e) {
-            // Catch all exceptions to prevent the ERROR log
-            System.err.println("Error handling session disconnect: " + e.getMessage());
+        if (username != null) {
+            onlineUserService.addUser(username);
+            broadcastOnlineUsers();
+            userService.setUserOIsActiveStatus(username, true);
         }
     }
 
-    // Optional helper to get all active users
-    public Map<String, String> getActiveUsers() {
-        return activeUsers;
+    @EventListener
+    public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
+        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+        String username = headerAccessor.getUser() != null ? headerAccessor.getUser().getName() : null;
+
+        if (username != null) {
+            onlineUserService.removeUser(username);
+            broadcastOnlineUsers();
+            userService.setUserOIsActiveStatus(username, false);
+            System.out.println("❌ User disconnected: " + username);
+        }
     }
 
-
+    private void broadcastOnlineUsers() {
+        Set<String> onlineUsers = onlineUserService.getOnlineUsers();
+        messagingTemplate.convertAndSend("/topic/online-users", onlineUsers);
+    }
 }

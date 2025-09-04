@@ -1,5 +1,6 @@
 package com.chat.sr.repo;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,7 +25,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
    @Transactional
     @Modifying(clearAutomatically = true)
     @Query("UPDATE User u SET u.isActive = :status WHERE u.userName = :username")
-    void updateUserOnlineStatus(@Param("username") String userName,
+    void updateUserIsActiveStatus(@Param("username") String userName,
                                 @Param("status") boolean status);
+    List<User> findAllByIsActiveTrue(); // ✅ online user list
+
 
 }
