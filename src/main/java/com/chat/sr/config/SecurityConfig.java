@@ -25,8 +25,8 @@ import com.chat.sr.exception.CustomAccessDeniedHandler;
 import com.chat.sr.exception.CustomAuthenticationEntryPoint;
 import com.chat.sr.security.CustomUserDetailsService;
 import com.chat.sr.security.JwtUtilsFilter;
-
-
+//export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+//mvn clean spring-boot:run
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

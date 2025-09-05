@@ -38,7 +38,7 @@ public class ChatMessage {
 	private MessageType type;
 
 	public enum MessageType {
-		CHAT, TYPING, PRIVATE_MESSAGE, JOIN, LEAVE
+		CHAT, TYPING, PRIVATE, JOIN, LEAVE
 	}
 
 	public Long getId() {
@@ -65,13 +65,6 @@ public class ChatMessage {
 		this.sender = sender;
 	}
 
-	public String getRecipients() {
-		return receiver;
-	}
-
-	public void setRecipients(String recipients) {
-		this.receiver = recipients;
-	}
 
 	public String getColors() {
 		return colors;

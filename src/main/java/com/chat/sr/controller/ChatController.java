@@ -2,10 +2,13 @@ package com.chat.sr.controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.chat.sr.dto.TypingMessage;
 import com.chat.sr.model.ChatMessage;
 import com.chat.sr.repo.ChatMessageRepository;
+import com.chat.sr.service.OnlineUserService;
 import com.chat.sr.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,8 @@ public class ChatController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private OnlineUserService onlineUserService;
     @Autowired
     private ChatMessageRepository chatMessageRepository;
 
@@ -101,8 +106,11 @@ public class ChatController {
     public void sendPrivateMessage(@Payload ChatMessage chatMessage, Principal principal) {
         String authenticatedUser = principal.getName();
         chatMessage.setSender(authenticatedUser);
-
-        if (userService.userExists(authenticatedUser) && userService.userExists(chatMessage.getRecipients())) {
+        if (authenticatedUser.equals(chatMessage.getReceiver())) {
+            logger.warn("⚠️ User [{}] tried to send a message to themselves. Ignored.", authenticatedUser);
+            return;
+        }
+        if (userService.userExists(authenticatedUser) && userService.userExists(chatMessage.getReceiver())) {
             if (chatMessage.getLocalDateTime() == null) {
                 chatMessage.setLocalDateTime(LocalDateTime.now());
             }
@@ -110,18 +118,18 @@ public class ChatController {
                 chatMessage.setContent("");
             }
 
-            chatMessage.setType(ChatMessage.MessageType.PRIVATE_MESSAGE);
+            chatMessage.setType(ChatMessage.MessageType.PRIVATE);
             ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
             try {
-                messagingTemplate.convertAndSendToUser(chatMessage.getRecipients(), "/queue/private", savedMessage);
+                messagingTemplate.convertAndSendToUser(chatMessage.getReceiver(), "/queue/private", savedMessage);
                 messagingTemplate.convertAndSendToUser(authenticatedUser, "/queue/private", savedMessage);
-                logger.info("📩 Private message sent to {} and {}", chatMessage.getRecipients(), authenticatedUser);
+                logger.info("📩 Private message sent to {} and {}", chatMessage.getReceiver(), authenticatedUser);
             } catch (Exception e) {
                 logger.error("❌ Error while sending message: {}", e.getMessage(), e);
             }
         } else {
-            logger.warn("⚠️ Sender [{}] or Recipient [{}] not exists", authenticatedUser, chatMessage.getRecipients());
+            logger.warn("⚠️ Sender [{}] or Recipient [{}] not exists", authenticatedUser, chatMessage.getReceiver());
         }
     }
 
@@ -132,5 +140,16 @@ public class ChatController {
         typing.setSender(principal.getName());
         return typing;
     }
+
+    @MessageMapping("/online-users")
+    public void sendOnlineUsers(SimpMessageHeaderAccessor headerAccessor, Principal principal) {
+        String authenticatedUser = principal.getName();
+        Set<String> onlineUsers = new HashSet<>(onlineUserService.getOnlineUsers());
+
+        onlineUsers.remove(authenticatedUser); // ✅ Remove the current user
+
+        messagingTemplate.convertAndSend("/topic/online-users", onlineUsers);
+    }
+
 
 }
