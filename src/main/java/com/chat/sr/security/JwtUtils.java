@@ -77,6 +77,15 @@ public class JwtUtils {
         return null; // JWT cookie পাওয়া যায়নি
     }
 
+    // শুধুমাত্র token দিয়ে validate করার ফাংশন
+    public boolean validateWithToken(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     // টোকেন valid কিনা
 	public boolean isTokenValid(String token, UserDetails userDetails) {

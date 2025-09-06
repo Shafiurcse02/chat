@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.chat.sr.dto.TypingMessage;
+import com.chat.sr.kafka.KafkaProducerService;
 import com.chat.sr.model.ChatMessage;
 import com.chat.sr.repo.ChatMessageRepository;
 import com.chat.sr.service.OnlineUserService;
@@ -33,6 +34,8 @@ public class ChatController {
     private OnlineUserService onlineUserService;
     @Autowired
     private ChatMessageRepository chatMessageRepository;
+    @Autowired
+    private KafkaProducerService kafkaProducerService;
 
     private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
 
@@ -145,10 +148,8 @@ public class ChatController {
     public void sendOnlineUsers(SimpMessageHeaderAccessor headerAccessor, Principal principal) {
         String authenticatedUser = principal.getName();
         Set<String> onlineUsers = new HashSet<>(onlineUserService.getOnlineUsers());
+        kafkaProducerService.sendOnlineUsersUpdate(onlineUsers);
 
-        onlineUsers.remove(authenticatedUser); // ✅ Remove the current user
-
-        messagingTemplate.convertAndSend("/topic/online-users", onlineUsers);
     }
 
 

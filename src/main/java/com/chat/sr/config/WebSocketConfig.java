@@ -36,7 +36,7 @@ import java.util.Map;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-    private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketConfig.class);
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
@@ -128,5 +128,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             }
         });
     }
+
 
 }

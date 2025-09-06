@@ -1,7 +1,11 @@
 package com.chat.sr.listener;
 
+import com.chat.sr.kafka.KafkaProducerService;
+import com.chat.sr.model.ChatMessage;
 import com.chat.sr.service.OnlineUserService;
 import com.chat.sr.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -19,6 +23,10 @@ public class WebSocketEventListener {
 
     @Autowired
     private OnlineUserService onlineUserService;
+    @Autowired private KafkaProducerService kafkaProducer;
+    @Autowired
+    private ObjectMapper mapper = new ObjectMapper();
+
 
     @Autowired
     private SimpMessageSendingOperations messagingTemplate;
@@ -35,7 +43,7 @@ public class WebSocketEventListener {
             System.out.println("🔌 User connected: " + username);
             onlineUserService.addUser(username);                        // Redis call
             userService.setUserOIsActiveStatus(username, true);        // DB status
-            broadcastOnlineUsers();                                    // Notify all
+            sendPresenceUpdate();
         }
     }
 
@@ -48,7 +56,7 @@ public class WebSocketEventListener {
             System.out.println("❌ User disconnected: " + username);
             onlineUserService.removeUser(username);                    // Redis call
             userService.setUserOIsActiveStatus(username, false);       // DB status
-            broadcastOnlineUsers();                                    // Notify all
+            sendPresenceUpdate();
         }
         Principal principal = StompHeaderAccessor.wrap(event.getMessage()).getUser();
         if (principal != null) {
@@ -58,10 +66,15 @@ public class WebSocketEventListener {
         }
     }
 
-    private void broadcastOnlineUsers() {
-        Set<String> onlineUsers = onlineUserService.getOnlineUsers();  // Redis set
-        messagingTemplate.convertAndSend("/topic/online-users", onlineUsers);
 
+    private void sendPresenceUpdate() {
+        try {
+            String usersJson = mapper.writeValueAsString(onlineUserService.getOnlineUsers());
+
+            ChatMessage message = mapper.readValue(usersJson, ChatMessage.class);
+
+            kafkaProducer.sendMessage("online.presence", message);
+        } catch (JsonProcessingException ignored) {}
     }
 
     private String getUsernameFromHeader(StompHeaderAccessor accessor) {

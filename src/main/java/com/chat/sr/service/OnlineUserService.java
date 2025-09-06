@@ -1,19 +1,13 @@
+
+
 package com.chat.sr.service;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class OnlineUserService {
@@ -25,10 +19,12 @@ public class OnlineUserService {
 
     public void addUser(String username) {
         redisTemplate.opsForSet().add(ONLINE_USERS_KEY, username);
+        System.out.println("[Presence] User online: " + username);
     }
 
     public void removeUser(String username) {
         redisTemplate.opsForSet().remove(ONLINE_USERS_KEY, username);
+        System.out.println("[Presence] User offline: " + username);
     }
 
     public Set<String> getOnlineUsers() {
@@ -36,13 +32,14 @@ public class OnlineUserService {
     }
 
     public boolean isOnline(String username) {
-        return Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(ONLINE_USERS_KEY, username));
+        Boolean result = redisTemplate.opsForSet().isMember(ONLINE_USERS_KEY, username);
+        return result != null && result;
     }
+
     @PreDestroy
     public void clearOnlineUsers() {
         redisTemplate.delete(ONLINE_USERS_KEY);
+        System.out.println("[Presence] Online users cleared on shutdown.");
     }
-
-
-
 }
+
