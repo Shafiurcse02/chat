@@ -1,8 +1,11 @@
 package com.chat.sr.model;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
@@ -20,79 +23,32 @@ import lombok.Data;
 @Table(name = "chat_messages")
 public class ChatMessage {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(nullable = false)
-	private String content;
+    @Column(nullable = false)
+    private String content;
 
-	private String sender;
-	private String receiver;
-	private String colors;
+    private String sender;
+    private String receiver;
+    private String colors;
 
     @CreationTimestamp
     @Column(updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private LocalDateTime localDateTime;
+    private LocalDateTime localDateTime;
 
-	@Enumerated(EnumType.STRING)
-	private MessageType type;
+    @Enumerated(EnumType.STRING)
+    private MessageType type;
 
-	public enum MessageType {
-		CHAT, TYPING, PRIVATE, JOIN, LEAVE
-	}
+    public enum MessageType {
+        CHAT, TYPING, PRIVATE, JOIN, LEAVE
+    }
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
-	}
-
-	public String getSender() {
-		return sender;
-	}
-
-	public void setSender(String sender) {
-		this.sender = sender;
-	}
-
-
-	public String getColors() {
-		return colors;
-	}
-
-	public void setColors(String colors) {
-		this.colors = colors;
-	}
-
-	public LocalDateTime getLocalDateTime() {
-		return localDateTime;
-	}
-
-	public void setLocalDateTime(LocalDateTime localDateTime) {
-		this.localDateTime = localDateTime;
-	}
-
-	public MessageType getMsgtype() {
-		return type;
-	}
-
-	public void setMsgtype(MessageType msgtype) {
-		this.type = msgtype;
-	}
-	
-	
-	
-	
+    // Add this setter to handle epoch millis from frontend
+    @JsonSetter("localDateTime")
+    public void setLocalDateTimeFromTimestamp(long timestamp) {
+        this.localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
+    }
 }
