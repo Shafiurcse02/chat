@@ -1,5 +1,6 @@
 package com.chat.sr.controller;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,8 +34,14 @@ public class MessageController {
             @RequestParam String user2,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "true") boolean asc
+            @RequestParam(defaultValue = "true") boolean asc,
+            Principal principal
     ) {
+        String authenticatedUser = principal.getName();
+        if (!authenticatedUser.equals(user1) && !authenticatedUser.equals(user2)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         Pageable pageable = PageRequest.of(page, size,
                 asc ? Sort.by("localDateTime").ascending() : Sort.by("localDateTime").descending()
         );
