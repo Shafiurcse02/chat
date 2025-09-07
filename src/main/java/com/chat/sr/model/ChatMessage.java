@@ -2,6 +2,7 @@ package com.chat.sr.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
@@ -30,8 +31,9 @@ public class ChatMessage {
 	private String receiver;
 	private String colors;
 
-	@Column(nullable = false, updatable = false)
-	@CreationTimestamp
+    @CreationTimestamp
+    @Column(updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime localDateTime;
 
 	@Enumerated(EnumType.STRING)

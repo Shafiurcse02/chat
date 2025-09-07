@@ -109,6 +109,8 @@ public class ChatController {
     public void sendPrivateMessage(@Payload ChatMessage chatMessage, Principal principal) {
         String authenticatedUser = principal.getName();
         chatMessage.setSender(authenticatedUser);
+        logger.info("📩 Private message:  {} ", chatMessage);
+
         if (authenticatedUser.equals(chatMessage.getReceiver())) {
             logger.warn("⚠️ User [{}] tried to send a message to themselves. Ignored.", authenticatedUser);
             return;
@@ -122,11 +124,11 @@ public class ChatController {
             }
 
             chatMessage.setType(ChatMessage.MessageType.PRIVATE);
+            logger.info("📩 Private message:  {} ", chatMessage);
             ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
             try {
-                messagingTemplate.convertAndSendToUser(chatMessage.getReceiver(), "/queue/private", savedMessage);
-                messagingTemplate.convertAndSendToUser(authenticatedUser, "/queue/private", savedMessage);
+                kafkaProducerService.sendMessage("chat.messages", chatMessage);
                 logger.info("📩 Private message sent to {} and {}", chatMessage.getReceiver(), authenticatedUser);
             } catch (Exception e) {
                 logger.error("❌ Error while sending message: {}", e.getMessage(), e);

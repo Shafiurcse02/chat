@@ -26,12 +26,9 @@ public class KafkaConsumerService {
 
             if (message.getType() == ChatMessage.MessageType.PRIVATE) {
                 // Send to receiver queue
-                String receiverDestination = "/queue/private/" + message.getReceiver();
-                messagingTemplate.convertAndSend(receiverDestination, message);
+                messagingTemplate.convertAndSendToUser(message.getReceiver(),"/queue/private/", message);
 
-                // Also send to sender queue so sender sees the message
-                String senderDestination = "/queue/private/" + message.getSender();
-                messagingTemplate.convertAndSend(senderDestination, message);
+                messagingTemplate.convertAndSendToUser(message.getSender(),"/queue/private/", message);
 
             } else {
                 // Public message goes to public topic

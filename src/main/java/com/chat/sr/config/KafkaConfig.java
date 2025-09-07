@@ -8,6 +8,7 @@ import org.springframework.kafka.config.TopicBuilder;
 
 
 //brew services start kafka
+// .\bin\windows\kafka-topics.bat --create --topic chat.messages --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
 //netstat -an | grep 9092
 //kafka-topics --create --topic online.presence --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
 //kafka-console-producer --topic online.presence --bootstrap-server localhost:9092
