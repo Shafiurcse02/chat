@@ -2,6 +2,8 @@ package com.chat.sr.kafka;
 
 import com.chat.sr.model.ChatMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -16,9 +18,12 @@ public class KafkaConsumerService {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate; // for WebSocket push
+    private final ObjectMapper objectMapper;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
+    @Autowired
+    public KafkaConsumerService(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
     @KafkaListener(topics = "chat.messages", groupId = "chat-group")
     public void consume(String jsonMessage) {
         try {

@@ -45,10 +45,5 @@ public class ChatMessage {
     public enum MessageType {
         CHAT, TYPING, PRIVATE, JOIN, LEAVE
     }
-
-    // Add this setter to handle epoch millis from frontend
-    @JsonSetter("localDateTime")
-    public void setLocalDateTimeFromTimestamp(long timestamp) {
-        this.localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
     }
-}
+

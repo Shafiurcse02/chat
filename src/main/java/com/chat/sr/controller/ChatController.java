@@ -109,32 +109,35 @@ public class ChatController {
     public void sendPrivateMessage(@Payload ChatMessage chatMessage, Principal principal) {
         String authenticatedUser = principal.getName();
         chatMessage.setSender(authenticatedUser);
-        logger.info("📩 Private message:  {} ", chatMessage);
-
+chatMessage.setLocalDateTime(LocalDateTime.now());
         if (authenticatedUser.equals(chatMessage.getReceiver())) {
             logger.warn("⚠️ User [{}] tried to send a message to themselves. Ignored.", authenticatedUser);
             return;
         }
-        if (userService.userExists(authenticatedUser) && userService.userExists(chatMessage.getReceiver())) {
-            if (chatMessage.getLocalDateTime() == null) {
-                chatMessage.setLocalDateTime(LocalDateTime.now());
-            }
-            if (chatMessage.getContent() == null) {
-                chatMessage.setContent("");
-            }
 
-            chatMessage.setType(ChatMessage.MessageType.PRIVATE);
-            logger.info("📩 Private message:  {} ", chatMessage);
-            ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
-
-            try {
-                kafkaProducerService.sendMessage("chat.messages", chatMessage);
-                logger.info("📩 Private message sent to {} and {}", chatMessage.getReceiver(), authenticatedUser);
-            } catch (Exception e) {
-                logger.error("❌ Error while sending message: {}", e.getMessage(), e);
-            }
-        } else {
+        if (!userService.userExists(authenticatedUser) || !userService.userExists(chatMessage.getReceiver())) {
             logger.warn("⚠️ Sender [{}] or Recipient [{}] not exists", authenticatedUser, chatMessage.getReceiver());
+            return;
+        }
+
+        if (chatMessage.getContent() == null || chatMessage.getContent().trim().isEmpty()) {
+            logger.warn("⚠️ Empty message content from {}", authenticatedUser);
+            return;
+        }
+
+        if (chatMessage.getLocalDateTime() == null) {
+            chatMessage.setLocalDateTime(LocalDateTime.now());
+        }
+
+        chatMessage.setType(ChatMessage.MessageType.PRIVATE);
+        logger.info("📩 Private message (to be sent):  {}", chatMessage);
+
+        try {
+            ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
+            kafkaProducerService.sendMessage("chat.messages", savedMessage);
+            logger.info("📩 Private message sent to {} and {}", savedMessage.getReceiver(), authenticatedUser);
+        } catch (Exception e) {
+            logger.error("❌ Error while sending message: {}", e.getMessage(), e);
         }
     }
 
