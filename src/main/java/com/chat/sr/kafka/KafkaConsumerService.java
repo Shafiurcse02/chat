@@ -34,10 +34,10 @@ public class KafkaConsumerService {
             ChatMessage message = objectMapper.readValue(jsonMessage, ChatMessage.class);
 
             if (message.getType() == ChatMessage.MessageType.PRIVATE) {
-                logger.info("👤 message in  : {}", message);
+                logger.info("👤 message in  consumer : {}", message);
 
-                messagingTemplate.convertAndSendToUser(message.getReceiver(), "/queue/private/", message);
-                messagingTemplate.convertAndSendToUser(message.getSender(), "/queue/private/", message);
+                messagingTemplate.convertAndSendToUser(message.getReceiver(), "/queue/private", message);
+                messagingTemplate.convertAndSendToUser(message.getSender(), "/queue/private", message);
 
             } else {
                 messagingTemplate.convertAndSend("/topic/public", message);

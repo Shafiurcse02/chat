@@ -114,7 +114,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
                     if (user != null) {
                         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                                user.getName(), null, List.of()); // optionally load roles
+                                user.getName().toLowerCase(), null, List.of()); // optionally load roles
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                         accessor.setUser(authentication);
                     } else {

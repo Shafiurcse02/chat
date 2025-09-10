@@ -110,6 +110,7 @@ public class ChatController {
         String authenticatedUser = principal.getName();
         chatMessage.setSender(authenticatedUser);
 chatMessage.setLocalDateTime(LocalDateTime.now());
+logger.info("Chat COntroller :{}",chatMessage);
         if (authenticatedUser.equals(chatMessage.getReceiver())) {
             logger.warn("⚠️ User [{}] tried to send a message to themselves. Ignored.", authenticatedUser);
             return;
