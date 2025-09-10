@@ -39,39 +39,39 @@ public class ChatController {
 
     private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
 
-    // ✅ User join
     @MessageMapping("/chat.addUser")
-    @SendTo("/topic/public")
-    public ChatMessage addUser(@Payload ChatMessage chatMessage,
+
+    public void addUser(@Payload ChatMessage chatMessage,
                                SimpMessageHeaderAccessor headerAccessor,
                                Principal principal) {
-        try {
-            String authenticatedUser = principal.getName();
-            chatMessage.setSender(authenticatedUser);
+        String username = principal.getName();
 
-            if (userService.userExists(authenticatedUser)) {
-                headerAccessor.getSessionAttributes().put("username", authenticatedUser);
-                userService.setUserOIsActiveStatus(authenticatedUser, true);
+        if (!userService.userExists(username)) {
+            logger.warn("⚠️ Tried to add user [{}], but user does not exist!", username);
 
-                logger.info("👤 New User Added: {} | Session ID: {}", authenticatedUser, headerAccessor.getSessionId());
-
-                chatMessage.setLocalDateTime(LocalDateTime.now());
-                if (chatMessage.getContent() == null) {
-                    chatMessage.setContent("");
-                }
-
-                ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
-                logger.debug("💾 User join message saved with ID: {}", savedMessage.getId());
-
-                return savedMessage;
-            } else {
-                logger.warn("⚠️ Tried to add user [{}], but user does not exist!", authenticatedUser);
-            }
-        } catch (Exception e) {
-            logger.error("❌ Error while adding user [{}]: {}", chatMessage.getSender(), e.getMessage(), e);
         }
-        return null;
+
+        // Save username in session
+        headerAccessor.getSessionAttributes().put("username", username);
+        userService.setUserOIsActiveStatus(username, true);
+
+        chatMessage.setSender(username);
+        chatMessage.setLocalDateTime(LocalDateTime.now());
+
+        if (chatMessage.getContent() == null) {
+            chatMessage.setContent("");
+        }
+
+        try{
+        ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
+        logger.info("✅ User [{}] joined. Message saved with ID: {}", username, savedMessage.getId());
+        kafkaProducerService.sendMessage("chat.messages", savedMessage);
+        } catch (Exception e) {
+            logger.error("❌ Error while saving/sending message: {}", e.getMessage(), e);
+        }
+
     }
+
 
     // ✅ Public chat message
     @MessageMapping("/chat.sendMessage")
