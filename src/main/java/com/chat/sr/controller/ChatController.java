@@ -130,12 +130,15 @@ chatMessage.setLocalDateTime(LocalDateTime.now());
         }
 
         chatMessage.setType(ChatMessage.MessageType.PRIVATE);
-        logger.info("📩 Private message (to be sent):  {}", chatMessage);
+        //logger.info("📩 Private message (to be sent):  {}", chatMessage);
 
         try {
+
             ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
+            logger.info("⚠️ User [{}] tried. {}", authenticatedUser, savedMessage);
+
             kafkaProducerService.sendMessage("chat.messages", savedMessage);
-            logger.info("📩 Private message sent to {} and {}", savedMessage.getReceiver(), authenticatedUser);
+        //    logger.info("📩 Private message sent to {} and {}", savedMessage.getReceiver(), authenticatedUser);
         } catch (Exception e) {
             logger.error("❌ Error while sending message: {}", e.getMessage(), e);
         }

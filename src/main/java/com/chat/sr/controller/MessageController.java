@@ -34,7 +34,7 @@ public class MessageController {
             @RequestParam String user2,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "true") boolean asc,
+            @RequestParam(defaultValue = "false") boolean asc,
             Principal principal
     ) {
         String authenticatedUser = principal.getName();
