@@ -75,33 +75,41 @@ public class ChatController {
 
     // ✅ Public chat message
     @MessageMapping("/chat.sendMessage")
-    @SendTo("/topic/public")
-    public ChatMessage sendMessage(@Payload ChatMessage chatMessage, Principal principal) {
+    public void sendMessage(@Payload ChatMessage chatMessage, Principal principal) {
         try {
             String authenticatedUser = principal.getName();
             chatMessage.setSender(authenticatedUser);
 
-            if (userService.userExists(authenticatedUser)) {
-                if (chatMessage.getLocalDateTime() == null) {
-                    chatMessage.setLocalDateTime(LocalDateTime.now());
-                }
-                if (chatMessage.getContent() == null) {
-                    chatMessage.setContent("");
-                }
-                if (chatMessage.getType() == null) {
-                    chatMessage.setType(ChatMessage.MessageType.CHAT);
-                }
-
-                ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
-                logger.info("✅ Public message saved. Sender: {}, ID: {}", savedMessage.getSender(), savedMessage.getId());
-                return savedMessage;
-            } else {
+            if (!userService.userExists(authenticatedUser)) {
                 logger.warn("⚠️ Authenticated user [{}] does not exist. Message rejected.", authenticatedUser);
+                return;
             }
+
+            if (chatMessage.getLocalDateTime() == null) {
+                chatMessage.setLocalDateTime(LocalDateTime.now());
+            }
+            if (chatMessage.getContent() == null) {
+                chatMessage.setContent("");
+            }
+            if (chatMessage.getType() == null) {
+                chatMessage.setType(ChatMessage.MessageType.CHAT);
+            }
+
+            // Default recipient to "public" if null or empty
+            if (chatMessage.getReceiver() == null || chatMessage.getReceiver().trim().isEmpty()) {
+                chatMessage.setReceiver("public");
+            }
+
+            // Save message to database
+            ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
+            logger.info("✅ Message saved. Sender: {}, Recipient: {}, ID: {}", savedMessage.getSender(), savedMessage.getReceiver(), savedMessage.getId());
+
+            // Send message to Kafka topic (same topic, consumers differentiate)
+            kafkaProducerService.sendMessage("chat.messages", savedMessage);
+
         } catch (Exception e) {
-            logger.error("❌ Error while saving/sending public message: {}", e.getMessage(), e);
+            logger.error("❌ Error while saving/sending message: {}", e.getMessage(), e);
         }
-        return null;
     }
 
     // ✅ Private message
