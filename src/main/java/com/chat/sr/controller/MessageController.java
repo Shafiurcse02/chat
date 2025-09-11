@@ -65,7 +65,7 @@ public class MessageController {
 
         Page<ChatMessage> messagesPage = chatMessageRepository.findPublicMessages(pageable);
 
-        logger.info("Fetched {} public messages", messagesPage.getNumberOfElements());
+        logger.info("Fetched {} public messages", messagesPage);
 
         return ResponseEntity.ok(messagesPage.getContent());
     }
