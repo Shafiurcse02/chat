@@ -40,18 +40,23 @@ public class ChatController {
     private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
 
     @MessageMapping("/chat.addUser")
-
     public void addUser(@Payload ChatMessage chatMessage,
-                               SimpMessageHeaderAccessor headerAccessor,
-                               Principal principal) {
+                        SimpMessageHeaderAccessor headerAccessor,
+                        Principal principal) {
         String username = principal.getName();
 
         if (!userService.userExists(username)) {
             logger.warn("⚠️ Tried to add user [{}], but user does not exist!", username);
-
+            return;
         }
 
-        // Save username in session
+        // Avoid duplicate JOINs
+        if (onlineUserService.isOnline(username)) {
+            logger.info("👤 User [{}] already online. Skipping duplicate join.", username);
+            return;
+        }
+
+        // Save session and mark user online
         headerAccessor.getSessionAttributes().put("username", username);
         userService.setUserOIsActiveStatus(username, true);
 
@@ -62,16 +67,15 @@ public class ChatController {
             chatMessage.setContent("");
         }
 
-        try{
-        ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
-        logger.info("✅ User [{}] joined. Message saved with ID: {}", username, savedMessage.getId());
-        kafkaProducerService.sendMessage("chat.messages", savedMessage);
+        try {
+            ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
+            logger.info("✅ User [{}] joined. Message saved with ID: {}", username, savedMessage.getId());
+
+            kafkaProducerService.sendMessage("chat.messages", savedMessage);
         } catch (Exception e) {
             logger.error("❌ Error while saving/sending message: {}", e.getMessage(), e);
         }
-
     }
-
 
     // ✅ Public chat message
     @MessageMapping("/chat.sendMessage")
