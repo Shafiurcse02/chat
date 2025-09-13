@@ -3,6 +3,7 @@ package com.chat.sr.repo;
 import java.util.List;
 import java.util.Optional;
 
+import com.chat.sr.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -28,6 +29,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     void updateUserIsActiveStatus(@Param("username") String userName,
                                 @Param("status") boolean status);
     List<User> findAllByIsActiveTrue(); // ✅ online user list
+    List<User> findByRole(Role role);  // enum ভিত্তিক query
+
+
 
 
 }

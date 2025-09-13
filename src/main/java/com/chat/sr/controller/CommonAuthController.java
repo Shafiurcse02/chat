@@ -10,9 +10,12 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayOutputStream;
@@ -20,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -27,11 +31,34 @@ import java.util.List;
 public class CommonAuthController {
     @Autowired
     private UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(CommonAuthController.class);
 
     @GetMapping("/download-pdf")
-    public ResponseEntity<byte[]> downloadPdf() {
+
+    public ResponseEntity<byte[]> downloadPdf(
+            @RequestParam(required = false) String role,
+            @RequestParam(required = false) Long id) {
         try {
-            List<User> users = userService.findAllUsers();
+
+                List<User> users;
+
+                if (role != null && id != null) {
+                    // role এবং id দুটোই থাকলে প্রথম id দিয়ে user নিয়ে চেক করো
+                    User user = userService.getUserByUId(id);
+                        users = List.of(user);  // শুধুমাত্র ঐ use
+                } else if (role != null) {
+                    // শুধু role থাকলে ঐ role এর সব user নাও
+                    users = userService.usersWithRole(role);
+
+                } else if (id != null) {
+                    // শুধু id থাকলে ঐ user নাও
+                    User user = userService.getUserByUId(id);
+                    users = (user != null) ? List.of(user) : Collections.emptyList();
+                } else {
+                    // কোন প্যারামিটার না থাকলে সব user নাও
+                    users = userService.findAllUsers();
+                }
+            logger.info(" users downloaded [{}]----------{}", users, role);
 
             PDDocument document = new PDDocument();
             PDPage page = new PDPage(PDRectangle.A4); // A4 size
