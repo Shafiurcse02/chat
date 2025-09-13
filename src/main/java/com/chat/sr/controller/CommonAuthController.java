@@ -41,23 +41,15 @@ public class CommonAuthController {
         try {
 
                 List<User> users;
+            if (role != null) {
+                users = userService.usersWithRole(role);
+            } else if (id != null) {
+                User user = userService.getUserByUId(id);
+                users = user != null ? List.of(user) : List.of();
+            } else {
+                users = userService.findAllUsers();
+            }
 
-                if (role != null && id != null) {
-                    // role এবং id দুটোই থাকলে প্রথম id দিয়ে user নিয়ে চেক করো
-                    User user = userService.getUserByUId(id);
-                        users = List.of(user);  // শুধুমাত্র ঐ use
-                } else if (role != null) {
-                    // শুধু role থাকলে ঐ role এর সব user নাও
-                    users = userService.usersWithRole(role);
-
-                } else if (id != null) {
-                    // শুধু id থাকলে ঐ user নাও
-                    User user = userService.getUserByUId(id);
-                    users = (user != null) ? List.of(user) : Collections.emptyList();
-                } else {
-                    // কোন প্যারামিটার না থাকলে সব user নাও
-                    users = userService.findAllUsers();
-                }
             logger.info(" users downloaded [{}]----------{}={}", users, role, users.size());
 
             PDDocument document = new PDDocument();
