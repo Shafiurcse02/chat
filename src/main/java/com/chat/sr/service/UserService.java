@@ -13,7 +13,7 @@ public interface UserService {
 
     void setUserOIsActiveStatus(String username, boolean status);
 
-
+    public List<User> findAllUsers();
     User getUserByUsername(String username);
 
 }

@@ -1,6 +1,8 @@
 package com.chat.sr.controller;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -49,25 +51,30 @@ public class MessageController {
         Page<ChatMessage> messagesPage = chatMessageRepository.findPrivateMessagesBetween(user1, user2, pageable);
 
         logger.info("Fetched {} private messages between [{}] and [{}]", messagesPage.getNumberOfElements(), user1, user2);
+        List<ChatMessage> content = new ArrayList<>(messagesPage.getContent());
 
-        return ResponseEntity.ok(messagesPage.getContent());
+        Collections.reverse(content);
+        return ResponseEntity.ok(content);
     }
 
     @GetMapping("/public")
     public ResponseEntity<List<ChatMessage>> getPublicMessages(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "true") boolean asc
+            @RequestParam(defaultValue = "false") boolean asc
     ) {
         Pageable pageable = PageRequest.of(page, size,
                 asc ? Sort.by("localDateTime").ascending() : Sort.by("localDateTime").descending()
         );
 
         Page<ChatMessage> messagesPage = chatMessageRepository.findPublicMessages(pageable);
+        List<ChatMessage> content = new ArrayList<>(messagesPage.getContent());
 
-        logger.info("Fetched {} public messages", messagesPage);
+        Collections.reverse(content);
 
-        return ResponseEntity.ok(messagesPage.getContent());
+        logger.info("Fetched {} public messages", content);
+
+        return ResponseEntity.ok(content);
     }
 
 }

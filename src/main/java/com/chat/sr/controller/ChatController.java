@@ -80,9 +80,12 @@ public class ChatController {
     // ✅ Public chat message
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(@Payload ChatMessage chatMessage, Principal principal) {
+        logger.info("✅ Message come. data:  shafiur trahamna{}", chatMessage);
+
         try {
             String authenticatedUser = principal.getName();
             chatMessage.setSender(authenticatedUser);
+            logger.info("✅ Message come. data: {}", chatMessage);
 
             if (!userService.userExists(authenticatedUser)) {
                 logger.warn("⚠️ Authenticated user [{}] does not exist. Message rejected.", authenticatedUser);
@@ -98,8 +101,6 @@ public class ChatController {
             if (chatMessage.getType() == null) {
                 chatMessage.setType(ChatMessage.MessageType.CHAT);
             }
-
-            // Default recipient to "public" if null or empty
             if (chatMessage.getReceiver() == null || chatMessage.getReceiver().trim().isEmpty()) {
                 chatMessage.setReceiver("public");
             }
@@ -107,6 +108,7 @@ public class ChatController {
             // Save message to database
             ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
             logger.info("✅ Message saved. Sender: {}, Recipient: {}, ID: {}", savedMessage.getSender(), savedMessage.getReceiver(), savedMessage.getId());
+            logger.info("✅ Message saved. data: {}", savedMessage);
 
             // Send message to Kafka topic (same topic, consumers differentiate)
             kafkaProducerService.sendMessage("chat.messages", savedMessage);
@@ -121,7 +123,6 @@ public class ChatController {
     public void sendPrivateMessage(@Payload ChatMessage chatMessage, Principal principal) {
         String authenticatedUser = principal.getName();
         chatMessage.setSender(authenticatedUser);
-chatMessage.setLocalDateTime(LocalDateTime.now());
 logger.info("Chat COntroller :{}",chatMessage);
         if (authenticatedUser.equals(chatMessage.getReceiver())) {
             logger.warn("⚠️ User [{}] tried to send a message to themselves. Ignored.", authenticatedUser);

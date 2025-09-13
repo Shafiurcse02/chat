@@ -43,11 +43,14 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults())
 				.authorizeHttpRequests(request ->
-                        request.requestMatchers("/auth/register", "/auth/login", "/auth/logout","/auth/farm-types").permitAll()
-						.requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**").hasRole("USER")
-                        .anyRequest().authenticated())
-				.sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+        request.requestMatchers("/auth/**", "/api/upload").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/user/**").hasRole("USER")
+                .requestMatchers("/my-profile").hasAnyRole("ADMIN", "USER")
+                .anyRequest().authenticated())
+
+                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.exceptionHandling(exception -> exception.accessDeniedHandler(customAccessDeniedHandler)
 						.authenticationEntryPoint(customAuthenticationEntryPoint))
 				.authenticationProvider(authenticationProvider())

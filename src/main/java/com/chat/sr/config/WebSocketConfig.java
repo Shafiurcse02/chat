@@ -26,6 +26,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 
@@ -114,7 +115,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
                     if (user != null) {
                         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                                user.getName().toLowerCase(), null, List.of()); // optionally load roles
+                                user.getName(), null, List.of()); // optionally load roles
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                         accessor.setUser(authentication);
                     } else {
@@ -128,6 +129,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             }
         });
     }
-
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
+        registration.setMessageSizeLimit(2 * 1024 * 1024); // ✅ 2MB
+        registration.setSendBufferSizeLimit(2 * 1024 * 1024);
+        registration.setSendTimeLimit(20 * 1000); // 20 seconds
+    }
 
 }

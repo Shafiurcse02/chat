@@ -8,20 +8,24 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RegisterRequestDTO {
     private String userName;
     private String password;
     private String email;
     private String phone;
     private String gender;
-    private String district;
-    private String thana;
-    private String po;
-    private String role;
-    private boolean isActive;
+    private String photo;
+
+
+
 }
 

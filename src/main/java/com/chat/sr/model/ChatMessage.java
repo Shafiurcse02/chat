@@ -6,33 +6,32 @@ import java.time.ZoneId;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name = "chat_messages")
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String content;
 
     private String sender;
     private String receiver;
     private String colors;
+
+    @Column
+    private String image;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -45,5 +44,11 @@ public class ChatMessage {
     public enum MessageType {
         CHAT, TYPING, PRIVATE, JOIN, LEAVE
     }
+
+    @JsonSetter("image")
+    public void setImage(String image) {
+        this.image = image;
     }
+
+}
 

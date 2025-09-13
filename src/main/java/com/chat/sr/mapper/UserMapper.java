@@ -13,9 +13,7 @@ public class UserMapper {
                 .userName(userDTO.getUserName())
                 .email(userDTO.getEmail())
                 .phone(userDTO.getPhone())
-                .district(userDTO.getDistrict())
-                .thana(userDTO.getThana())
-                .po(userDTO.getPo())
+                .photo(userDTO.getPhoto())
                 .gender(userDTO.getGender())
                 .build();
     }
@@ -25,6 +23,7 @@ public class UserMapper {
         if (userDTO.getPhone() != null) user.setPhone(userDTO.getPhone());
         if (userDTO.getGender() != null) user.setGender(userDTO.getGender());
         if (userDTO.getEmail() != null) user.setEmail(userDTO.getEmail());
+        if (userDTO.getPhoto() != null) user.setPhoto(userDTO.getPhoto());
         if (userDTO.getDistrict() != null) user.setDistrict(userDTO.getDistrict());
         if (userDTO.getThana() != null) user.setThana(userDTO.getThana());
         if (userDTO.getPo() != null) user.setPo(userDTO.getPo());
@@ -38,6 +37,7 @@ public class UserMapper {
                 .userName(user.getUserName())
                 .phone(user.getPhone())
                 .gender(user.getGender())
+                .photo(user.getPhoto())
                 .email(user.getEmail())
                 .district(user.getDistrict())
                 .thana(user.getThana())

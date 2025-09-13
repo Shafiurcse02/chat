@@ -4,6 +4,7 @@ import com.chat.sr.dto.LoginRequestDTO;
 import com.chat.sr.dto.LoginRsponseDTO;
 import com.chat.sr.dto.RegisterRequestDTO;
 import com.chat.sr.dto.UserDTO;
+import com.chat.sr.mapper.UserMapper;
 import com.chat.sr.model.Role;
 import com.chat.sr.model.User;
 import com.chat.sr.repo.UserRepository;
@@ -39,22 +40,13 @@ public class AuthenticationService {
 throw  new RuntimeException("UserName Already Exists");
         }
         System.out.println(userDTO+" *************************");
-        userDTO.setActive(false);
-        userDTO.setRole("USER");
-        User user= User.builder()
-                .userName(userDTO.getUserName())
-                .email(userDTO.getEmail())
-                .phone(userDTO.getPhone())
-                .district(userDTO.getDistrict())
-                .thana(userDTO.getThana())
-                .po(userDTO.getPo())
-                .gender(userDTO.getGender())
-                .password(passwordEncoder.encode(userDTO.getPassword()))
-                .role(Role.valueOf(userDTO.getRole()))
-                .build();
+
+        User user= UserMapper.toUser(userDTO);
+                user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setRole(Role.USER);
         System.out.println(user+" ++++++++++++++++++");
         User user1=userRepository.save(user);
-        return convertToUserDTO(user1);
+        return UserMapper.toDTO(user1);
     }
 
     public LoginRsponseDTO login(LoginRequestDTO loginRequestDTO) {
@@ -100,6 +92,7 @@ throw  new RuntimeException("UserName Already Exists");
                 .phone(user.getPhone())
                 .gender(user.getGender())
                 .email(user.getEmail())
+                .photo(user.getPhoto())
                 .district(user.getDistrict())
                 .thana(user.getThana())
                 .po(user.getPo())
