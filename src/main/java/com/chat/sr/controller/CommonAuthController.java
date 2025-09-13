@@ -88,7 +88,7 @@ public class CommonAuthController {
             float margin = 50;
             float yStart = 660;  // টেবিল শুরু হওয়ার y পজিশন
             int cols = 5;
-            float[] colWidths = {50, 120, 150, 100, 80}; // ৫টি কলামের width
+            float[] colWidths = {40, 120, 150, 100, 80}; // ৫টি কলামের width
             float tableWidth = 0;
             for (float w : colWidths) {
                 tableWidth += w;
