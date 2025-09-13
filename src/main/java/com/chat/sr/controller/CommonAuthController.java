@@ -80,7 +80,7 @@ public class CommonAuthController {
 
             // Title
             contentStream.beginText();
-            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 16);
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 13);
             contentStream.newLineAtOffset(220, 700);
             contentStream.showText("User List Report");
             contentStream.endText();
@@ -88,7 +88,7 @@ public class CommonAuthController {
             float margin = 50;
             float yStart = 660;  // টেবিল শুরু হওয়ার y পজিশন
             int cols = 5;
-            float[] colWidths = {40, 120, 150, 100, 80}; // ৫টি কলামের width
+            float[] colWidths = {40, 130, 150, 90, 80}; // ৫টি কলামের width
             float tableWidth = 0;
             for (float w : colWidths) {
                 tableWidth += w;
