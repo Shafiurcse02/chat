@@ -92,7 +92,7 @@ public class CommonAuthController {
             float rowHeight = 20;
             float tableBottomY = 100;
 
-            int cols = 3;
+            int cols = 5;
             float[] colWidths = { 50, 200, 250 }; // উদাহরণ: S/N, Name, Email
             float tableX = margin;
 
@@ -113,6 +113,13 @@ public class CommonAuthController {
             contentStream.showText("Name");
             contentStream.newLineAtOffset(colWidths[1], 0);
             contentStream.showText("Email");
+
+
+            contentStream.newLineAtOffset(colWidths[2], 0);
+            contentStream.showText("Phone");
+
+            contentStream.newLineAtOffset(colWidths[3], 0);
+            contentStream.showText("District");
             contentStream.endText();
 
 // Draw header row border
@@ -155,6 +162,10 @@ public class CommonAuthController {
                 contentStream.showText(user.getUserName());
                 contentStream.newLineAtOffset(colWidths[1], 0);
                 contentStream.showText(user.getEmail());
+                contentStream.newLineAtOffset(colWidths[2], 0);
+                contentStream.showText(user.getPhone());
+                contentStream.newLineAtOffset(colWidths[3], 0);
+                contentStream.showText(user.getDistrict());
                 contentStream.endText();
 
                 nextY -= rowHeight;
