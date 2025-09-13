@@ -58,7 +58,7 @@ public class CommonAuthController {
                     // কোন প্যারামিটার না থাকলে সব user নাও
                     users = userService.findAllUsers();
                 }
-            logger.info(" users downloaded [{}]----------{}", users, role);
+            logger.info(" users downloaded [{}]----------{}={}", users, role, users.size());
 
             PDDocument document = new PDDocument();
             PDPage page = new PDPage(PDRectangle.A4); // A4 size
