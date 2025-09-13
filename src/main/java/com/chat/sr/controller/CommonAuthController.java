@@ -60,7 +60,7 @@ public class CommonAuthController {
             contentStream.showText("Phone: +8801XXXXXXXXX");
             contentStream.endText();
 
-            // Draw line BELOW the header (e.g. at y=785)
+            // Draw line BELOW the header (e.g. at y=750)
             contentStream.moveTo(40, 750);
             contentStream.lineTo(560, 750);
             contentStream.setStrokingColor(0, 0, 0);  // black line
@@ -69,15 +69,15 @@ public class CommonAuthController {
 
             contentStream.beginText();
             contentStream.setFont(PDType1Font.HELVETICA_OBLIQUE, 12);
-            contentStream.newLineAtOffset(409, 735);  // একটু লাইন এর ওপরে (y=755) এবং ডানদিকে (x=520)
+            contentStream.newLineAtOffset(409, 735);
 
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
             String formattedDateTime = now.format(formatter);
 
-
-            contentStream.showText("Date: "+formattedDateTime);
+            contentStream.showText("Date: " + formattedDateTime);
             contentStream.endText();
+
             // Title
             contentStream.beginText();
             contentStream.setFont(PDType1Font.HELVETICA_BOLD, 16);
@@ -85,28 +85,25 @@ public class CommonAuthController {
             contentStream.showText("User List Report");
             contentStream.endText();
 
-            // প্রাথমিক সেটআপ
             float margin = 50;
             float yStart = 660;  // টেবিল শুরু হওয়ার y পজিশন
-            float tableWidth = 500;
-            float rowHeight = 20;
-            float tableBottomY = 100;
-
             int cols = 5;
-            float[] colWidths = {50, 200, 250, 150, 150}; // Adjust widths for S/N, Name, Email, Phone, District
+            float[] colWidths = {50, 120, 150, 100, 80}; // ৫টি কলামের width
             float tableWidth = 0;
             for (float w : colWidths) {
                 tableWidth += w;
             }
+            float rowHeight = 20;
+            float tableBottomY = 100;
             float tableX = margin;
 
-// Draw header row background and text
-            contentStream.setNonStrokingColor(200, 200, 200); // Light grey background
+            // Draw header row background and text
+            contentStream.setNonStrokingColor(200, 200, 200); // হালকা ধূসর ব্যাকগ্রাউন্ড
             contentStream.addRect(tableX, yStart, tableWidth, rowHeight);
             contentStream.fill();
-            contentStream.setNonStrokingColor(0, 0, 0); // Black font
+            contentStream.setNonStrokingColor(0, 0, 0); // কালো ফন্ট
 
-// Draw header text
+            // Draw header text
             contentStream.beginText();
             contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
             float textx = tableX + 5;
@@ -123,7 +120,7 @@ public class CommonAuthController {
             contentStream.showText("District");
             contentStream.endText();
 
-// Draw header row border
+            // Draw header row border
             contentStream.setStrokingColor(0, 0, 0);
             contentStream.addRect(tableX, yStart, tableWidth, rowHeight);
             contentStream.stroke();
@@ -133,7 +130,7 @@ public class CommonAuthController {
 
             for (User user : users) {
                 if (nextY < tableBottomY) {
-                    // TODO: Handle page break here if needed
+                    // এখানে পেজ ব্রেক হ্যান্ডেল করতে পারেন যদি অনেক ডাটা থাকে
                     break;
                 }
 
@@ -154,26 +151,26 @@ public class CommonAuthController {
                 contentStream.lineTo(nextX, nextY + rowHeight);
                 contentStream.stroke();
 
-                // Write text in the row
+                // Write text in the row with null-safe strings
                 contentStream.beginText();
                 contentStream.setFont(PDType1Font.HELVETICA, 12);
                 contentStream.newLineAtOffset(tableX + 5, nextY + 5);
                 contentStream.showText(String.valueOf(serial++));
                 contentStream.newLineAtOffset(colWidths[0], 0);
-                contentStream.showText(user.getUserName());
+                contentStream.showText(safeString(user.getUserName()));
                 contentStream.newLineAtOffset(colWidths[1], 0);
-                contentStream.showText(user.getEmail());
+                contentStream.showText(safeString(user.getEmail()));
                 contentStream.newLineAtOffset(colWidths[2], 0);
-                contentStream.showText(user.getPhone());
+                contentStream.showText(safeString(user.getPhone()));
                 contentStream.newLineAtOffset(colWidths[3], 0);
-                contentStream.showText(user.getDistrict());
+                contentStream.showText(safeString(user.getDistrict()));
                 contentStream.endText();
 
                 nextY -= rowHeight;
             }
 
-            // Draw line ABOVE the footer (e.g. at y=50)
-            contentStream.moveTo(50, 72);   // x=50, y=785 থেকে 1 inch নিচে
+            // Draw line ABOVE the footer (e.g. at y=72)
+            contentStream.moveTo(50, 72);
             contentStream.lineTo(550, 72);
             contentStream.setStrokingColor(0, 0, 0);
             contentStream.setLineWidth(1);
@@ -202,6 +199,11 @@ public class CommonAuthController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+
+    // Null-safe helper method
+    private String safeString(String text) {
+        return text == null ? "" : text;
     }
 
 }
