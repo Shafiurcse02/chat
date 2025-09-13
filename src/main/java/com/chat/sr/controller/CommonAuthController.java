@@ -93,14 +93,18 @@ public class CommonAuthController {
             float tableBottomY = 100;
 
             int cols = 5;
-            float[] colWidths = { 50, 200, 250 }; // উদাহরণ: S/N, Name, Email
+            float[] colWidths = {50, 200, 250, 150, 150}; // Adjust widths for S/N, Name, Email, Phone, District
+            float tableWidth = 0;
+            for (float w : colWidths) {
+                tableWidth += w;
+            }
             float tableX = margin;
 
 // Draw header row background and text
-            contentStream.setNonStrokingColor(200, 200, 200); // হালকা ধূসর ব্যাকগ্রাউন্ড
+            contentStream.setNonStrokingColor(200, 200, 200); // Light grey background
             contentStream.addRect(tableX, yStart, tableWidth, rowHeight);
             contentStream.fill();
-            contentStream.setNonStrokingColor(0, 0, 0); // কালো ফন্ট
+            contentStream.setNonStrokingColor(0, 0, 0); // Black font
 
 // Draw header text
             contentStream.beginText();
@@ -113,11 +117,8 @@ public class CommonAuthController {
             contentStream.showText("Name");
             contentStream.newLineAtOffset(colWidths[1], 0);
             contentStream.showText("Email");
-
-
             contentStream.newLineAtOffset(colWidths[2], 0);
             contentStream.showText("Phone");
-
             contentStream.newLineAtOffset(colWidths[3], 0);
             contentStream.showText("District");
             contentStream.endText();
@@ -132,7 +133,7 @@ public class CommonAuthController {
 
             for (User user : users) {
                 if (nextY < tableBottomY) {
-                    // এখানে পেজ ব্রেক হ্যান্ডেল করতে পারেন যদি অনেক ডাটা থাকে
+                    // TODO: Handle page break here if needed
                     break;
                 }
 
@@ -170,7 +171,6 @@ public class CommonAuthController {
 
                 nextY -= rowHeight;
             }
-
 
             // Draw line ABOVE the footer (e.g. at y=50)
             contentStream.moveTo(50, 72);   // x=50, y=785 থেকে 1 inch নিচে
