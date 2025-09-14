@@ -47,7 +47,7 @@ public class SecurityConfig {
         request.requestMatchers("/auth/**", "/api/upload").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/user/**").hasRole("USER")
-                .requestMatchers("/my-profile").hasAnyRole("ADMIN", "USER","VET")
+                .requestMatchers("/my-profile").hasAnyRole("ADMIN", "USER","VET","OWNER")
                 .anyRequest().authenticated())
 
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
