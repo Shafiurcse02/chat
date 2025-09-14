@@ -47,7 +47,7 @@ public class UmsController {
     // ✅ 4. Update User
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserDTO updatedUser) {
-        logger.info("Updating user with ID: {}", id);
+        logger.info("Updating user with ID: {}======{}", id,updatedUser);
         return userRepository.findById(id)
                 .map(user -> {
                     UserMapper.updateUserFromDTO(updatedUser,user);

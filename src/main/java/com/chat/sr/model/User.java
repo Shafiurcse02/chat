@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Generated;
 import jakarta.persistence.*;
 import lombok.*;
+import org.apache.logging.log4j.util.Lazy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,12 @@ public class User {
     private String district;
     private String thana;
     private String po;
+    // Relations for specific roles
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Owner owner;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private Vet vet;
     // এখানে enum ব্যবহার করা হল
     @Enumerated(EnumType.STRING)
     private Role role = Role.OWNER;
@@ -39,6 +45,10 @@ public class User {
 
     @Column(name = "is_online", nullable = false)
     private boolean isActive = false;
+
+
+    @Column(name = "account_lock", nullable = false)
+    private boolean approved = false;
 
     @JsonIgnore              // JSON serialization থেকে বাদ দিবে
     @ToString.Exclude

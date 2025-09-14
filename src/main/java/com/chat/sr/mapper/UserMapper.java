@@ -4,6 +4,7 @@ import com.chat.sr.dto.RegisterRequestDTO;
 import com.chat.sr.dto.UserDTO;
 import com.chat.sr.model.Role;
 import com.chat.sr.model.User;
+import org.springframework.stereotype.Component;
 
 public class UserMapper {
 
@@ -27,6 +28,7 @@ public class UserMapper {
         if (userDTO.getDistrict() != null) user.setDistrict(userDTO.getDistrict());
         if (userDTO.getThana() != null) user.setThana(userDTO.getThana());
         if (userDTO.getPo() != null) user.setPo(userDTO.getPo());
+        if (userDTO.getRole() != null) user.setRole(userDTO.getRole());
         // isActive শুধু admin update করতে পারবে, তাই চাইলে এখানে রাখবেন না
     }
 
