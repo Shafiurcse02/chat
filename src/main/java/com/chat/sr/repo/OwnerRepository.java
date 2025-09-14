@@ -13,6 +13,4 @@ public interface OwnerRepository extends JpaRepository<Owner, Long> {
     // Optional: find Owner by associated User (if you need this)
     Optional<Owner> findByUserId(Long userId);
 
-    // Optional: find Owner by name, if needed
-    Optional<Owner> findByName(String name);
 }

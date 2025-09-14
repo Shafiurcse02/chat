@@ -1,6 +1,5 @@
 package com.chat.sr.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,16 +8,16 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class CreateAppointmentRequest {
-    private Long userId;
-    private String description;
+public class AppointmentDTO {
+    private Long id;
     private String species;
     private String gender;
     private String age;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Dhaka")
+    private String description;
     private LocalDateTime appointmentDate;
-
+    private Long ownerId;
+    private Long vetId;
 }

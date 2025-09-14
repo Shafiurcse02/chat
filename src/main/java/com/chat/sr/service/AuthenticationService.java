@@ -5,8 +5,10 @@ import com.chat.sr.dto.LoginRsponseDTO;
 import com.chat.sr.dto.RegisterRequestDTO;
 import com.chat.sr.dto.UserDTO;
 import com.chat.sr.mapper.UserMapper;
+import com.chat.sr.model.Owner;
 import com.chat.sr.model.Role;
 import com.chat.sr.model.User;
+import com.chat.sr.repo.OwnerRepository;
 import com.chat.sr.repo.UserRepository;
 import com.chat.sr.security.CustomUserDetails;
 import com.chat.sr.security.JwtUtils;
@@ -34,6 +36,8 @@ public class AuthenticationService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private JwtUtils jwtUtils;
+    @Autowired
+    private  OwnerRepository ownerRepository;
 
     public UserDTO signup(RegisterRequestDTO userDTO) {
         if (userRepository.findByUserName(userDTO.getUserName()).isPresent()){
@@ -43,9 +47,15 @@ throw  new RuntimeException("UserName Already Exists");
 
         User user= UserMapper.toUser(userDTO);
                 user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        user.setRole(Role.USER);
+        user.setRole(Role.OWNER);
         System.out.println(user+" ++++++++++++++++++");
         User user1=userRepository.save(user);
+
+
+        Owner owner = Owner.builder()
+                .user(user)
+                .build();
+        ownerRepository.save(owner);
         return UserMapper.toDTO(user1);
     }
 

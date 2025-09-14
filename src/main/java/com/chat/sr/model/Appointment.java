@@ -19,10 +19,12 @@ public class Appointment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private Owner owner;
     private String description;
+    private String gender;
+    private String age;
     private String species;
    // @ManyToOne
     //@JoinColumn(name = "pet_id")
@@ -30,9 +32,14 @@ public class Appointment {
    @CreationTimestamp
    @Column(updatable = false)
    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-   private LocalDateTime appointmentDate;
+   private LocalDateTime appointmentAt;
+
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Dhaka")
+    private LocalDateTime appointmentDate;
     // Initially NULL → Admin assigns Vet
-    @ManyToOne
+    // Initially NULL → Admin assigns Vet
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vet_id")
     private Vet vet;
 
