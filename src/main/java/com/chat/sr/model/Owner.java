@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-
 @Entity
 @Table(name = "owners")
 @Data
@@ -27,14 +26,11 @@ public class Owner {
     @JoinColumn(name = "user_id")
     private User user;
 
-
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference // ✅ Parent
     private List<Pet> pets = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference // ✅ Parent
     private List<Appointment> appointments = new ArrayList<>();
-
-
 }

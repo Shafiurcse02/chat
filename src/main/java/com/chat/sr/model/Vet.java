@@ -23,7 +23,7 @@ public class Vet {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
-    
+
     @OneToMany(mappedBy = "vet", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Appointment> appointments = new ArrayList<>();
