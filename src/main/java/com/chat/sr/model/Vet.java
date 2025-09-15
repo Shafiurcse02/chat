@@ -1,5 +1,6 @@
 package com.chat.sr.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,10 +23,10 @@ public class Vet {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
-
-    @JsonIgnore
-    @ToString.Exclude
+    
     @OneToMany(mappedBy = "vet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Appointment> appointments = new ArrayList<>();
+
 }
 
