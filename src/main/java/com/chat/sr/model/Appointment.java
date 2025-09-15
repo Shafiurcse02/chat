@@ -1,5 +1,7 @@
 package com.chat.sr.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,9 +21,6 @@ public class Appointment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    private Owner owner;
     private String description;
     private String gender;
     private String age;
@@ -39,9 +38,18 @@ public class Appointment {
     private LocalDateTime appointmentDate;
     // Initially NULL → Admin assigns Vet
     // Initially NULL → Admin assigns Vet
+
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private Owner owner;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vet_id")
     private Vet vet;
+
+
 
     // Vet can later add prescription
     @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL)

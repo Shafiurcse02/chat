@@ -1,5 +1,6 @@
 package com.chat.sr.controller;
 
+import com.chat.sr.dto.AppointmentDTO;
 import com.chat.sr.dto.CreateAppointmentRequest;
 import com.chat.sr.model.Appointment;
 import com.chat.sr.model.Owner;
@@ -110,20 +111,27 @@ public class AppointmentController {
     // OWNER or ADMIN can fetch appointments for a specific user
     @PreAuthorize("hasRole('ADMIN') or hasRole('OWNER')")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getAppointmentsByUserId(@PathVariable Long userId) {
-        try {
-            Owner owner = ownerRepository.findByUserId(userId)
-                    .orElseThrow(() -> new RuntimeException("Owner not found"));
-logger.info("Ok Appint klist controller");
-            List<Appointment> appointments = appointmentRepository.findByOwnerId(owner.getId());
+    public ResponseEntity<List<AppointmentDTO>> getAppointmentsByUserId(@PathVariable Long userId) {
+        Owner owner = ownerRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
 
-            return ResponseEntity.ok(appointments);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to fetch appointments");
-        }
+        List<AppointmentDTO> list = appointmentRepository.findByOwnerId(owner.getId())
+                .stream()
+                .map(a -> {
+                    AppointmentDTO dto = new AppointmentDTO();
+                    dto.setId(a.getId());
+                    dto.setSpecies(a.getSpecies());
+                    dto.setGender(a.getGender());
+                    dto.setAge(a.getAge());
+                    dto.setDescription(a.getDescription());
+                    dto.setOwnerId(a.getOwner().getId());
+                    dto.setVetId(a.getVet().getId() != null ? a.getVet().getId() : null);
+                    dto.setAppointmentDate(a.getAppointmentDate());
+                    return dto;
+                }).toList();
+
+        return ResponseEntity.ok(list);
     }
+
 
 }
