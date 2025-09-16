@@ -1,5 +1,6 @@
 package com.chat.sr.service;
 
+import com.chat.sr.dto.UserDTO;
 import com.chat.sr.model.User;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public interface UserService {
     User getUserByUsername(String username);
     User getUserByUId(Long  id);
     List<User> usersWithRole(String role);
+    public List<UserDTO> getAllUsers();
 
 
 }

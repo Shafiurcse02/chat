@@ -4,6 +4,7 @@ import com.chat.sr.dto.UserDTO;
 import com.chat.sr.mapper.UserMapper;
 import com.chat.sr.model.User;
 import com.chat.sr.repo.UserRepository;
+import com.chat.sr.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,14 @@ public class UmsController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
 
     // ✅ 1. Get All Users
     @GetMapping("/users")
-    public List<User> getAllUsers() {
-        logger.info("Fetching all users");
-        return userRepository.findAll();
+    public List<UserDTO> getAllUsers() {
+        logger.info("Fetching all users: check");
+        return userService.getAllUsers();
     }
 
     // ✅ 2. Get User by ID

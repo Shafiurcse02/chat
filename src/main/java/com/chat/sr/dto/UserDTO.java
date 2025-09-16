@@ -26,8 +26,13 @@ public class UserDTO {
     private String district;
     private String photo;
     private String thana;
+    private OwnerDTO owner; // Optional
+
     private String po;
     private Role role;
     private boolean isActive;
 
+
 }
+
+

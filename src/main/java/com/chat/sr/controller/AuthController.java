@@ -2,11 +2,13 @@ package com.chat.sr.controller;
 import com.chat.sr.dto.LoginRequestDTO;
 import com.chat.sr.dto.LoginRsponseDTO;
 import com.chat.sr.dto.RegisterRequestDTO;
+import com.chat.sr.exception.UserAlreadyExistsException;
 import com.chat.sr.mapper.UserMapper;
 import com.chat.sr.repo.UserRepository;
 import com.chat.sr.service.AuthenticationService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -30,9 +32,20 @@ public class AuthController {
     private UserRepository userRepository;
 
     // ------------------- Registration -------------------
+
+
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> registerUser(@RequestBody RegisterRequestDTO userDTO) {
-        return ResponseEntity.ok(authenticationService.signup(userDTO));
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequestDTO userDTO) {
+        try {
+            UserDTO savedUser = authenticationService.signup(userDTO);
+            return ResponseEntity.ok(savedUser);
+        } catch (UserAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
+        }
     }
 
     // ------------------- Login -------------------

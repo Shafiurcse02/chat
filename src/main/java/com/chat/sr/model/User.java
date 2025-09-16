@@ -34,8 +34,9 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Owner owner;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Vet vet;
+
     // এখানে enum ব্যবহার করা হল
     @Enumerated(EnumType.STRING)
     private Role role = Role.OWNER;
@@ -50,9 +51,6 @@ public class User {
     @Column(name = "account_lock", nullable = false)
     private boolean approved = false;
 
-    @JsonIgnore              // JSON serialization থেকে বাদ দিবে
-    @ToString.Exclude
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Farm> farms;
+
 
 }

@@ -21,8 +21,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	Boolean existsByEmail(String email);
     Optional<User> findByUserName(String userName);
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.farms WHERE u.id = :id")
-    User findByIdWithFarms(@Param("id") Long id);
+
    @Transactional
     @Modifying(clearAutomatically = true)
     @Query("UPDATE User u SET u.isActive = :status WHERE u.userName = :username")

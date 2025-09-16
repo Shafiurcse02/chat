@@ -4,6 +4,7 @@ import com.chat.sr.dto.LoginRequestDTO;
 import com.chat.sr.dto.LoginRsponseDTO;
 import com.chat.sr.dto.RegisterRequestDTO;
 import com.chat.sr.dto.UserDTO;
+import com.chat.sr.exception.UserAlreadyExistsException;
 import com.chat.sr.mapper.UserMapper;
 import com.chat.sr.model.Owner;
 import com.chat.sr.model.Role;
@@ -39,25 +40,30 @@ public class AuthenticationService {
     @Autowired
     private  OwnerRepository ownerRepository;
 
+
     public UserDTO signup(RegisterRequestDTO userDTO) {
-        if (userRepository.findByUserName(userDTO.getUserName()).isPresent()){
-throw  new RuntimeException("UserName Already Exists");
+        if (userRepository.findByUserName(userDTO.getUserName()).isPresent()) {
+            throw new UserAlreadyExistsException("UserName Already Exists");
         }
-        System.out.println(userDTO+" *************************");
 
-        User user= UserMapper.toUser(userDTO);
-                user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
+            throw new UserAlreadyExistsException("Email Already Exists");
+        }
+        // Convert DTO to entity
+        User user = UserMapper.toUser(userDTO);
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setRole(Role.OWNER);
-        System.out.println(user+" ++++++++++++++++++");
-        User user1=userRepository.save(user);
 
+        // Create Owner and link bi-directionally
+        Owner owner = Owner.builder().user(user).build();
+        user.setOwner(owner);
 
-        Owner owner = Owner.builder()
-                .user(user)
-                .build();
-        ownerRepository.save(owner);
-        return UserMapper.toDTO(user1);
+        // Save user (cascade will save owner)
+        User savedUser = userRepository.save(user);
+
+        return UserMapper.toDTO(savedUser);
     }
+
 
     public LoginRsponseDTO login(LoginRequestDTO loginRequestDTO) {
         User user=userRepository.findByUserName(loginRequestDTO.getUserName()).orElseThrow(()-> new RuntimeException("User Not Found"));

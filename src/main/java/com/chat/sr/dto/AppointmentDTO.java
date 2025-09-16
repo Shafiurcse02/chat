@@ -17,6 +17,7 @@ public class AppointmentDTO {
     private String gender;
     private String age;
     private String description;
+    private LocalDateTime appointmentAt;
     private LocalDateTime appointmentDate;
     private Long ownerId;
     private Long vetId;

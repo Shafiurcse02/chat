@@ -40,14 +40,15 @@ public class Appointment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
-    @JsonBackReference // ✅ Child
+    @JsonIgnore // ✅ Child
     private Owner owner;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vet_id")
-    @JsonBackReference // ✅ যদি Vet এর সাথেও loop হয়, তবে এটাতেও বসাতে হবে
+    @JsonIgnore // ✅ যদি Vet এর সাথেও loop হয়, তবে এটাতেও বসাতে হবে
     private Vet vet;
 
     @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Prescription prescription;
 }

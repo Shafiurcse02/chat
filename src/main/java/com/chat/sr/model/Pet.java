@@ -26,8 +26,4 @@ public class Pet {
     private String gender;
     private String age;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    @JsonBackReference // ✅ Child
-    private Owner owner;
 }

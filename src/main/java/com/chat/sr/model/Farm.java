@@ -26,5 +26,9 @@ public class Farm {
     @JoinColumn(name = "owner_id")
     @JsonIgnore // Farm → Owner → User → Farm infinite loop এড়ানোর জন্য
     private Owner owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "farm_type_id") // FK column
+    private FarmType farmType;
 }
 
