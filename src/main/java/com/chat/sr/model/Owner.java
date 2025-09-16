@@ -24,14 +24,13 @@ public class Owner {
 
     @OneToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference
+    @JsonBackReference // Owner → User
     private User user;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<Appointment> appointments = new ArrayList<>();
+    private List<Farm> farms = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<Farm> farms;
-}
+    private List<Appointment> appointments = new ArrayList<>();}

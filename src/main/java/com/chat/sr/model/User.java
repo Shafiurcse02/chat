@@ -1,6 +1,7 @@
 package com.chat.sr.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.annotation.Generated;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,11 +33,11 @@ public class User {
     private String po;
     // Relations for specific roles
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonManagedReference // User → Owner
     private Owner owner;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonManagedReference // User → Vet
     private Vet vet;
 
     // এখানে enum ব্যবহার করা হল

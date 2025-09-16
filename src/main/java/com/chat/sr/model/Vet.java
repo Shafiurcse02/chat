@@ -1,4 +1,5 @@
 package com.chat.sr.model;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -28,7 +29,7 @@ public class Vet {
 
     @OneToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore // User-Vet loop এড়ানোর জন্য
+    @JsonBackReference // Vet → User
     private User user;
 
     @OneToMany(mappedBy = "vet", cascade = CascadeType.ALL, orphanRemoval = true)

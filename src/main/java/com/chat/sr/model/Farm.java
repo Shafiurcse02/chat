@@ -25,7 +25,7 @@ public class Farm {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
-    @JsonBackReference
+    @JsonBackReference // Farm → Owner
     private Owner owner;
 
     @ManyToOne(fetch = FetchType.LAZY)
