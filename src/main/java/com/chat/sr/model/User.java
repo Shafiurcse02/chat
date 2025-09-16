@@ -32,9 +32,11 @@ public class User {
     private String po;
     // Relations for specific roles
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Owner owner;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Vet vet;
 
     // এখানে enum ব্যবহার করা হল

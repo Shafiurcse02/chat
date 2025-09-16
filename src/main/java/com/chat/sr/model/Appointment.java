@@ -49,6 +49,5 @@ public class Appointment {
     private Vet vet;
 
     @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL)
-    @JsonIgnore
     private Prescription prescription;
 }

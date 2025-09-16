@@ -1,6 +1,7 @@
 package com.chat.sr.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,7 +25,7 @@ public class Farm {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
-    @JsonIgnore // Farm → Owner → User → Farm infinite loop এড়ানোর জন্য
+    @JsonBackReference
     private Owner owner;
 
     @ManyToOne(fetch = FetchType.LAZY)
