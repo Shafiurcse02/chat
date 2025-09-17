@@ -28,8 +28,6 @@ public class Farm {
     @JsonBackReference // Farm → Owner
     private Owner owner;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "farm_type_id") // FK column
-    private FarmType farmType;
+
 }
 

@@ -1,4 +1,5 @@
 package com.chat.sr.model;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,20 +23,26 @@ public class Prescription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String observations;
+    @ElementCollection
+    @CollectionTable(
+            name = "prescription_medicines",
+            joinColumns = @JoinColumn(name = "prescription_id")
+    )
+    private List<Medicine> medicines = new ArrayList<>();
 
     private String notes;
 
-
-    @OneToOne
-    @JoinColumn(name = "appointment_id")
-    private Appointment appointment;
 
     @CreationTimestamp
     @Column(updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime localDateTime;
 
-    @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Medicine> medicines = new ArrayList<>();
+    @OneToOne
+    @JoinColumn(name = "appointment_id")
+    @JsonBackReference
+    private Appointment appointment;
+
 
 }

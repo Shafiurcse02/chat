@@ -20,27 +20,33 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(unique = true, nullable = false)
     private String userName;
+
     @Column(nullable = false)
     private String password;
+
     private String phone;
     private String photo;
+
     @Column(nullable = false)
     private String gender;
     private String district;
     private String thana;
     private String po;
-    // Relations for specific roles
+
+    // Relations
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference // User → Owner
+    @JsonManagedReference
+    @ToString.Exclude   // <-- recursion ঠেকাবে
     private Owner owner;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference // User → Vet
+    @JsonManagedReference
+    @ToString.Exclude   // <-- recursion ঠেকাবে
     private Vet vet;
 
-    // এখানে enum ব্যবহার করা হল
     @Enumerated(EnumType.STRING)
     private Role role = Role.OWNER;
 
@@ -50,10 +56,6 @@ public class User {
     @Column(name = "is_online", nullable = false)
     private boolean isActive = false;
 
-
     @Column(name = "account_lock", nullable = false)
     private boolean approved = false;
-
-
-
 }

@@ -1,8 +1,5 @@
 package com.chat.sr.model;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,14 +37,14 @@ public class Appointment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
-    @JsonIgnore // ✅ Child
-    private Owner owner;
+@JsonBackReference    private Owner owner;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vet_id")
-    @JsonIgnore // ✅ যদি Vet এর সাথেও loop হয়, তবে এটাতেও বসাতে হবে
+@JsonBackReference
     private Vet vet;
 
     @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Prescription prescription;
 }

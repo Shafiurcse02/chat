@@ -24,6 +24,4 @@ public class FarmType {
     @Column(nullable = false)
     private String typeName;  // উদাহরণ: Poultry, Dairy, Fishery
 
-    @OneToMany(mappedBy = "farmType", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Farm> farms;
 }

@@ -36,9 +36,7 @@ public class PrescriptionController {
 
         // Set Prescription in medicines
         List<Medicine> medicines = request.getMedicines();
-        for (Medicine m : medicines) {
-            m.setPrescription(prescription);
-        }
+
         prescription.setMedicines(medicines);
 
         return prescriptionRepository.save(prescription);

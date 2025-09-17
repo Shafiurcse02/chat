@@ -2,6 +2,7 @@ package com.chat.sr.controller;
 
 import com.chat.sr.dto.AppointmentDTO;
 import com.chat.sr.dto.CreateAppointmentRequest;
+import com.chat.sr.mapper.AppointmentMapper;
 import com.chat.sr.model.Appointment;
 import com.chat.sr.model.Owner;
 import com.chat.sr.model.Vet;
@@ -70,21 +71,67 @@ public class AppointmentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete appointment");
         }
     }
-    // OWNER or ADMIN can get appointment by ID
-    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN')")
-    @GetMapping("/{appointmentId}")
-    public ResponseEntity<?> getAppointmentById(@PathVariable Long appointmentId) {
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OWNER')")
+    @PutMapping("/{appointmentId}")
+    public ResponseEntity<?> updateAppointmentByAppoinId(
+            @PathVariable Long appointmentId,
+            @RequestBody Appointment updatedAppointmentData
+    ) {
         try {
             Appointment appointment = appointmentRepository.findById(appointmentId)
                     .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-            return ResponseEntity.ok(appointment);
+            // Update only the fields you want to allow
+            if (updatedAppointmentData.getSpecies() != null) {
+                appointment.setSpecies(updatedAppointmentData.getSpecies());
+            }
+            if (updatedAppointmentData.getGender() != null) {
+                appointment.setGender(updatedAppointmentData.getGender());
+            }
+            if (updatedAppointmentData.getAge() != null) {
+                appointment.setAge(updatedAppointmentData.getAge());
+            }
+            if (updatedAppointmentData.getDescription() != null) {
+                appointment.setDescription(updatedAppointmentData.getDescription());
+            }
+            if (updatedAppointmentData.getAppointmentDate() != null) {
+                appointment.setAppointmentDate(updatedAppointmentData.getAppointmentDate());
+            }
+
+            // Vet or owner might be null, so handle safely
+            if (updatedAppointmentData.getVet() != null) {
+                appointment.setVet(updatedAppointmentData.getVet());
+            }
+
+            if (updatedAppointmentData.getOwner() != null) {
+                appointment.setOwner(updatedAppointmentData.getOwner());
+            }
+
+            // Save updated appointment
+            Appointment savedAppointment = appointmentRepository.save(appointment);
+
+            // Map to DTO safely
+            AppointmentDTO dto = AppointmentMapper.toDTO(savedAppointment);
+
+            return ResponseEntity.ok(dto);
+
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to fetch appointment");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to update appointment");
         }
     }
+
+    // OWNER or ADMIN can get appointment by ID
+    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN')")
+    @GetMapping("/{appointmentId}")
+    public ResponseEntity<?> getAppointmentById(@PathVariable Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+        return ResponseEntity.ok(AppointmentMapper.toDTO(appointment));
+    }
+
 
     // ADMIN assigns vet
     @PreAuthorize("hasRole('ADMIN')")
@@ -108,30 +155,52 @@ public class AppointmentController {
                     .body("Failed to fetch appointments");
         }
     }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OWNER')")
+    @PutMapping("/{appointmentId}")
+    public ResponseEntity<?> updateAppointmentById(
+            @PathVariable Long appointmentId,
+            @RequestBody CreateAppointmentRequest updateRequest) {
+
+        try {
+            Appointment appointment = appointmentRepository.findById(appointmentId)
+                    .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+            // Update fields if provided
+            if (updateRequest.getSpecies() != null) appointment.setSpecies(updateRequest.getSpecies());
+            if (updateRequest.getGender() != null) appointment.setGender(updateRequest.getGender());
+            if (updateRequest.getAge() != null) appointment.setAge(updateRequest.getAge());
+            if (updateRequest.getDescription() != null) appointment.setDescription(updateRequest.getDescription());
+            if (updateRequest.getAppointmentDate() != null) appointment.setAppointmentDate(updateRequest.getAppointmentDate());
+
+            Appointment updated = appointmentRepository.save(appointment);
+
+            // Map to DTO
+            AppointmentDTO dto = AppointmentMapper.toDTO(updated);
+            return ResponseEntity.ok(dto);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update appointment");
+        }
+    }
+
     // OWNER or ADMIN can fetch appointments for a specific user
     @PreAuthorize("hasRole('ADMIN') or hasRole('OWNER')")
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<AppointmentDTO>> getAppointmentsByUserId(@PathVariable Long userId) {
         Owner owner = ownerRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
-
+logger.info("Check controller to fetch all appointmentys for a user id: {}",userId);
         List<AppointmentDTO> list = appointmentRepository.findByOwnerId(owner.getId())
                 .stream()
-                .map(a -> {
-                    AppointmentDTO dto = new AppointmentDTO();
-                    dto.setId(a.getId());
-                    dto.setSpecies(a.getSpecies());
-                    dto.setGender(a.getGender());
-                    dto.setAge(a.getAge());
-                    dto.setDescription(a.getDescription());
-                    dto.setOwnerId(a.getOwner().getId());
-                    dto.setVetId(a.getVet().getId() != null ? a.getVet().getId() : null);
-                    dto.setAppointmentDate(a.getAppointmentDate());
-                    return dto;
-                }).toList();
+                .map(AppointmentMapper::toDTO)
+                .toList();
 
         return ResponseEntity.ok(list);
     }
+
 
 
 }
