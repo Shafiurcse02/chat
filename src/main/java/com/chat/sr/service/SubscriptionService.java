@@ -16,8 +16,8 @@ public class SubscriptionService {
     private final OwnerRepository ownerRepository;
 
     // নতুন subscription তৈরি
-    public Subscription createSubscription(Long userId, PlanType planType, Double fee) {
-        Owner owner = ownerRepository.findById(userId)
+    public Subscription createSubscription(Long ownerId, PlanType planType, Double fee) {
+        Owner owner = ownerRepository.findById(ownerId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         LocalDate startDate = LocalDate.now();
@@ -65,6 +65,6 @@ public class SubscriptionService {
 
     // User এর সব subscription খুঁজে আনা
     public List<Subscription> getSubscriptionsByUser(Long userId) {
-        return subscriptionRepository.findByUserId(userId);
+        return subscriptionRepository.findByOwnerId(userId);
     }
 }

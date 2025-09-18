@@ -15,13 +15,13 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     // Create new subscription
-    @PostMapping("/create/{userId}")
+    @PostMapping("/create/{ownerId}")
     public ResponseEntity<Subscription> createSubscription(
-            @PathVariable Long userId,
+            @PathVariable Long ownerId,
             @RequestParam PlanType planType,
             @RequestParam Double fee) {
 
-        Subscription subscription = subscriptionService.createSubscription(userId, planType, fee);
+        Subscription subscription = subscriptionService.createSubscription(ownerId, planType, fee);
         return ResponseEntity.ok(subscription);
     }
 

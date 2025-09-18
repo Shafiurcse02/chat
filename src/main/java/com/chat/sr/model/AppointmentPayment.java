@@ -11,8 +11,8 @@ public class AppointmentPayment {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "owner_id")
+    private Owner owner;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vet_id")

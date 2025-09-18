@@ -49,6 +49,7 @@ public class AppointmentController {
                 .age(createAppointmentRequest.getAge())
                 .appointmentDate(createAppointmentRequest.getAppointmentDate())
                 .build();
+        logger.info("Okk creat appointment {}", appointment);
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
