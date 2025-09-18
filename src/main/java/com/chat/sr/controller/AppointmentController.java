@@ -71,58 +71,6 @@ public class AppointmentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete appointment");
         }
     }
-    @PreAuthorize("hasRole('ADMIN') or hasRole('OWNER')")
-    @PutMapping("/{appointmentId}")
-    public ResponseEntity<?> updateAppointmentByAppoinId(
-            @PathVariable Long appointmentId,
-            @RequestBody Appointment updatedAppointmentData
-    ) {
-        try {
-            Appointment appointment = appointmentRepository.findById(appointmentId)
-                    .orElseThrow(() -> new RuntimeException("Appointment not found"));
-
-            // Update only the fields you want to allow
-            if (updatedAppointmentData.getSpecies() != null) {
-                appointment.setSpecies(updatedAppointmentData.getSpecies());
-            }
-            if (updatedAppointmentData.getGender() != null) {
-                appointment.setGender(updatedAppointmentData.getGender());
-            }
-            if (updatedAppointmentData.getAge() != null) {
-                appointment.setAge(updatedAppointmentData.getAge());
-            }
-            if (updatedAppointmentData.getDescription() != null) {
-                appointment.setDescription(updatedAppointmentData.getDescription());
-            }
-            if (updatedAppointmentData.getAppointmentDate() != null) {
-                appointment.setAppointmentDate(updatedAppointmentData.getAppointmentDate());
-            }
-
-            // Vet or owner might be null, so handle safely
-            if (updatedAppointmentData.getVet() != null) {
-                appointment.setVet(updatedAppointmentData.getVet());
-            }
-
-            if (updatedAppointmentData.getOwner() != null) {
-                appointment.setOwner(updatedAppointmentData.getOwner());
-            }
-
-            // Save updated appointment
-            Appointment savedAppointment = appointmentRepository.save(appointment);
-
-            // Map to DTO safely
-            AppointmentDTO dto = AppointmentMapper.toDTO(savedAppointment);
-
-            return ResponseEntity.ok(dto);
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to update appointment");
-        }
-    }
-
     // OWNER or ADMIN can get appointment by ID
     @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN')")
     @GetMapping("/{appointmentId}")
@@ -200,6 +148,18 @@ logger.info("Check controller to fetch all appointmentys for a user id: {}",user
 
         return ResponseEntity.ok(list);
     }
+
+    // OWNER or ADMIN can pay for an appointment
+    @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN')")
+    @PostMapping("/{appointmentId}/pay")
+    public ResponseEntity<?> payForAppointment(
+            @PathVariable Long appointmentId,
+            @RequestParam Double amount
+    ) {
+
+        return ResponseEntity.ok("Ok Payment");
+    }
+
 
 
 

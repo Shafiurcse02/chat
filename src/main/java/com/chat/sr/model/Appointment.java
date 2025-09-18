@@ -37,8 +37,8 @@ public class Appointment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
-@JsonBackReference    private Owner owner;
-
+@JsonBackReference
+    private Owner owner;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vet_id")
 @JsonBackReference

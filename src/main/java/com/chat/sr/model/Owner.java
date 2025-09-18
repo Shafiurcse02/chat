@@ -27,6 +27,9 @@ public class Owner {
     @JsonBackReference // Owner → User
     private User user;
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Subscription> subscriptions = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
